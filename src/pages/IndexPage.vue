@@ -1,10 +1,15 @@
 <template>
   <q-page class="flex flex-center">
-    <div class="q-pa-md grid-container">
+    <div class="q-pa-md grid-container q-gutter-md">
       <div class="row q-gutter-md" v-for="rowNumber in numRows" :key="'row'+rowNumber">
-        <div class="col value-cell" v-for="colNumber in numColumns" :key="'col'+colNumber" :class="{front: getSide(rowNumber, colNumber) == 'front'}">
-          {{this.getValue(rowNumber, colNumber)}}
-        </div>
+          <MatchCellVue
+            class="col value-cell" v-for="colNumber in numColumns" :key="'col'+colNumber"
+            :noteObj="getObj(rowNumber, colNumber)"
+            :row="rowNumber"
+            :column="colNumber"
+            :selectedRow="selectedRow"
+            :selectedColumn="selectedColumn"
+          />
       </div>
     </div>
   </q-page>
@@ -14,6 +19,8 @@
 import { defineComponent } from 'vue'
 import notes from 'src/assets/notes.csv'
 import { useMatcherGameStore } from 'src/stores/matcher-game-store'
+import { ref } from 'vue'
+import MatchCellVue from 'src/components/MatchCell.vue'
 
 const randomFromArray = ([...arr], n = 1) => {
   let m = arr.length;
@@ -24,28 +31,13 @@ const randomFromArray = ([...arr], n = 1) => {
   return arr.slice(0, n);
 };
 
-function shuffle(array) {
-  let currentIndex = array.length,  randomIndex;
-  let shuffled = [...array]
-
-  // While there remain elements to shuffle.
-  while (currentIndex > 0) {
-
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [shuffled[currentIndex], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[currentIndex]];
+function shuffle (array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
-
   return array;
-}
-
-
-function valueForGrid(col, row) {
-
-}
+};
 
 function isOdd(num) {
   return num % 2 != 0
@@ -89,7 +81,13 @@ function listToMatrix(list, elementsPerSubArray) {
 
 export default defineComponent({
   name: 'IndexPage',
+  components: {
+    MatchCellVue
+  },
   setup() {
+
+    let selectedRow = ref(0)
+    let selectedColumn = ref(0)
 
     const store = useMatcherGameStore()
     const size = store.numRows * store.numColumns
@@ -104,13 +102,15 @@ export default defineComponent({
     }
 
     let shuffledArray = shuffle(separatedNoteValues)
+    console.log(shuffledArray)
     let shuffledMatrix = listToMatrix(shuffledArray, store.numColumns)
+    console.log(shuffledMatrix)
 
     function objForRowColumn(row, column) {
-      console.log(`row=${row}, col=${column}`)
-      let index = column + ((row-1)*store.numColumns)
-      console.log(index)
-      let cellObj = shuffledArray[index]
+      // have to convert to zero-index
+      const zRow = row-1, zCol = column -1
+      console.log(`row=${zRow}, col=${zCol}`)
+      let cellObj = shuffledMatrix[zRow][zCol]
       console.log(`value=${cellObj.value}`, cellObj)
       return cellObj;
     }
@@ -124,11 +124,19 @@ export default defineComponent({
       return objForRowColumn(row, column).side
     }
 
+    function isFront(row, column) {
+      return sideForRowColumn(row, column) == 'front'
+    }
+
     return {
       numRows: store.numRows,
       numColumns: store.numColumns,
       getValue: valueForRowColumn,
-      getSide: sideForRowColumn
+      getSide: sideForRowColumn,
+      getObj: objForRowColumn,
+      isFront,
+      selectedRow,
+      selectedColumn
     }
   }
 })
