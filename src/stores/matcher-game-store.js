@@ -4,44 +4,53 @@ export const useMatcherGameStore = defineStore('matcherGame', {
   state: () => ({
     rows: 6,
     cols: 6,
-    selectedRow: 0,
-    selectedColumn: 0,
-    selectedNoteObj: null,
-    selectedRow2: 0,
-    selectedColumn2: 0,
-    selectedNoteObj2: null
+    selected: new Map(),
+    maxSelect: 2,
+    matched: new Map(),
+    reveals: 0
   }),
   getters: {
     numRows: (state) => state.rows,
     numColumns: (state) => state.cols,
-    hasSelection: (state) => state.selectedNoteObj != null,
+    hasSelection: (state) => state.selected.size > 0
   },
   actions: {
     updateGrid(rows, cols) {
       this.numRows = rows;
       this.numColumns = cols;
     },
-    setSelected(r,c, noteObj) {
-      this.selectedRow = r
-      this.selectedColumn = c
-      this.selectedNoteObj = noteObj
+    setSelected(noteObj) {
+      console.log(`Setting: ${noteObj.value}`, noteObj)
+      this.selected.set(noteObj.value, noteObj)
     },
-    setSelected2(r,c, noteObj) {
-      this.selectedRow2 = r
-      this.selectedColumn2 = c
-      this.selectedNoteObj2 = noteObj
+    unselect(noteObj) {
+      this.selected.delete(noteObj.value)
     },
-    isSelected(r,c) {
-      return this.selectedColumn == c && this.selectedRow == r
-    },
-    isSelected2(noteObj) {
-      return this.noteObj2 == noteObj
+    isSelected(noteObj) {
+      return this.selected.has(noteObj.value)
     },
     clearSelection() {
-      this.selectedColumn = 0
-      this.selectedRow = 0
-      this.selectedNoteObj = null
-      this.selectedNoteObj2 = null
+      this.selected.clear()
+    },
+    canSelect() {
+      return this.selected.size < this.maxSelect
+    },
+    hasMatch(toCheck) {
+      return this.selected.has(toCheck.match.value)
+    },
+    getMatch(toCheck) {
+      return this.selected.get(toCheck.match.value)
+    },
+    addMatched(noteObj) {
+      this.matched.set(noteObj.value, noteObj)
+    },
+    isMatched(noteObj) {
+      const match = this.matched.has(noteObj.value)
+      return match;
+    },
+    incrementReveals() {
+      this.reveals = this.reveals + 1
+      console.log("reveals=" + this.reveals)
     }
   },
 });

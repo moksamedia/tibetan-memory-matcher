@@ -3,7 +3,7 @@
     <div class="q-pa-md grid-container q-gutter-md">
       <div class="row q-gutter-md" v-for="rowNumber in numRows" :key="'row'+rowNumber">
           <MatchCellVue
-            class="col value-cell" v-for="colNumber in numColumns" :key="'col'+colNumber"
+            v-for="colNumber in numColumns" :key="'col'+colNumber"
             :noteObj="getObj(rowNumber, colNumber)"
             :row="rowNumber"
             :column="colNumber"
@@ -92,6 +92,7 @@ export default defineComponent({
     const store = useMatcherGameStore()
     const size = store.numRows * store.numColumns
     const halfSize = Math.trunc(size/2)
+    const reveals = store.reveals
 
     let randomNotes = randomFromArray(notes, halfSize)
     let separatedNoteValues = separateNoteValues(randomNotes)
@@ -136,7 +137,8 @@ export default defineComponent({
       getObj: objForRowColumn,
       isFront,
       selectedRow,
-      selectedColumn
+      selectedColumn,
+      reveals
     }
   }
 })
@@ -148,12 +150,7 @@ export default defineComponent({
   width: 90%;
   margin: 20px auto;
 }
-.value-cell {
-  text-align: center;
-  padding: 10px;
-}
-.front {
-  font-size: 200% !important;
-  background-color: lightblue;
+.q-page-container {
+background-color: rgb(206, 206, 206);
 }
 </style>
