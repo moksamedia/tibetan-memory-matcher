@@ -21,6 +21,7 @@ import notes from 'src/assets/notes.csv'
 import { useMatcherGameStore } from 'src/stores/matcher-game-store'
 import { ref } from 'vue'
 import MatchCellVue from 'src/components/MatchCell.vue'
+import { storeToRefs } from 'pinia'
 
 const randomFromArray = ([...arr], n = 1) => {
   let m = arr.length;
@@ -86,33 +87,32 @@ export default defineComponent({
   },
   setup() {
 
+    const store = useMatcherGameStore()
+    let {cols, rows, reveals} = storeToRefs(store)
+
     let selectedRow = ref(0)
     let selectedColumn = ref(0)
 
-    const store = useMatcherGameStore()
-    const size = store.numRows * store.numColumns
+    const size = rows.value * cols.value
     const halfSize = Math.trunc(size/2)
-    const reveals = store.reveals
 
     let randomNotes = randomFromArray(notes, halfSize)
     let separatedNoteValues = separateNoteValues(randomNotes)
 
     // if grid has an odd number of sizes, must include a joker card
-    if (isOdd(separatedNoteValues.length)) {
+    if (isOdd(size)) {
       separatedNoteValues.push({value:"JOKER", side:"joker", match:0})
     }
 
     let shuffledArray = shuffle(separatedNoteValues)
-    console.log(shuffledArray)
-    let shuffledMatrix = listToMatrix(shuffledArray, store.numColumns)
-    console.log(shuffledMatrix)
+    //console.log(shuffledArray)
+    let shuffledMatrix = listToMatrix(shuffledArray, cols.value)
+    //console.log(shuffledMatrix)
 
     function objForRowColumn(row, column) {
       // have to convert to zero-index
       const zRow = row-1, zCol = column -1
-      console.log(`row=${zRow}, col=${zCol}`)
       let cellObj = shuffledMatrix[zRow][zCol]
-      console.log(`value=${cellObj.value}`, cellObj)
       return cellObj;
     }
 

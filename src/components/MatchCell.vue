@@ -33,37 +33,39 @@ export default defineComponent({
   },
   setup(props) {
 
+    const {noteObj} = props;
+
     const store = useMatcherGameStore()
 
     const isSelected = computed(() => {
-      return store.isSelected(props.noteObj)
+      return store.isSelected(noteObj)
     })
 
     const isMatched = computed(() => {
-      return store.isMatched(props.noteObj)
+      return store.isMatched(noteObj)
     })
 
     function onclick(e) {
 
-      store.incrementReveals()
-
       if (isMatched.value) {
-        console.log("Matched! " + props.noteObj.value)
         return;
       }
 
-      if (store.isSelected(props.noteObj)) {
-          store.unselect(props.noteObj)
+      if (store.isSelected(noteObj)) {
+          store.unselect(noteObj)
       }
       else if (store.canSelect()) {
-        let thisNoteObj = props.noteObj
-        store.setSelected(props.noteObj)
-        if (store.hasMatch(props.noteObj)) {
-          const match = store.getMatch(props.noteObj)
+        store.setSelected(noteObj)
+
+        if (store.hasMatch(noteObj)) {
+          const match = store.getMatch(noteObj)
           store.addMatched(match)
-          store.addMatched(props.noteObj)
+          store.addMatched(noteObj)
           store.unselect(match)
-          store.unselect(props.noteObj)
+          store.unselect(noteObj)
+        }
+        else {
+          store.incrementReveals()
         }
       }
 
@@ -75,8 +77,8 @@ export default defineComponent({
       _handlePress: onclick,
       selected: isSelected,
       matched: isMatched,
-      front: props.noteObj.side == "front",
-      value: props.noteObj.value
+      front: noteObj.side == "front",
+      value: noteObj.value
     }
   }
 })
@@ -103,9 +105,11 @@ export default defineComponent({
   padding: 20px 10px;
   display: flex;
   align-items: center;
+  font-size: 1.3em;
 }
 .front {
-  font-size: 200% !important;
+  font-size: 3.2em;
+  font-family: 'monlam-chouk';
 }
 .prevent-select {
   -webkit-user-select: none; /* Safari */

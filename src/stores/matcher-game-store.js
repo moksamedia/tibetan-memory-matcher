@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 
 export const useMatcherGameStore = defineStore('matcherGame', {
   state: () => ({
-    rows: 6,
-    cols: 6,
+    rows: 4,
+    cols: 4,
     selected: new Map(),
     maxSelect: 2,
     matched: new Map(),

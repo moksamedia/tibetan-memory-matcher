@@ -1,1 +1,9 @@
 // app global css in SCSS form
+@font-face {
+  font-family: 'monlam-chouk';
+  src: url('src/assets/fonts/Monlam Uni Chouk.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'monlam-choukmatik';
+  src: url('src/assets/fonts/Monlam Uni ChoukMatik.ttf') format('truetype');
+}

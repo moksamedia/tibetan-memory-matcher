@@ -49,6 +49,7 @@
 import { defineComponent, ref } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 import { useMatcherGameStore } from 'src/stores/matcher-game-store'
+import { storeToRefs } from 'pinia'
 
 const linksList = [
   {
@@ -71,7 +72,7 @@ export default defineComponent({
     const leftDrawerOpen = ref(false)
 
     const store = useMatcherGameStore()
-    const reveals = store.reveals
+    const {reveals,rows,cols} = storeToRefs(store)
 
     return {
       reveals,
