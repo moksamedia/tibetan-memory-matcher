@@ -64,6 +64,12 @@ const linksList = [
     icon: 'school',
     link: '/dates'
   },
+  {
+    title: 'Times',
+    caption: 'Generate random times',
+    icon: 'school',
+    link: '/times'
+  },
 ]
 
 export default defineComponent({

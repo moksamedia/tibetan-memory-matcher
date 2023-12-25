@@ -8,21 +8,16 @@ import moment from 'moment'
 
 let numEach = ref(10)
 
-const randomDates = computed(() => {
+const randomTimes = computed(() => {
   let acc = []
   for (let i=0;i<numEach.value;i++) {
-    let randomDate = dateUtils.randomDateInRange(new Date("Jan 1, 1900"), new Date())
-    acc.push([
-      randomDate,
-      moment(randomDate).format("YYYY-MM-DD"),
-      moment(randomDate).format("MMM Do, YYYY"),
-      dateUtils.getFullDateAsText(randomDate)
-    ])
+    let hour = timeUtils.generateRandomHour();
+    let mins = timeUtils.generateRandomMinutes()
+    let timeObj = timeUtils.getTimeAsText(hour,mins)
+    acc.push([hour+":"+mins,timeObj.string,timeUtils.hints[timeObj.type]])
   }
   return acc
 })
-
-console.log("randomDates", toRaw(randomDates.value))
 
 </script>
 <template>
@@ -33,16 +28,14 @@ console.log("randomDates", toRaw(randomDates.value))
           <q-input outlined v-model="numEach" label="Num Each" min="5" max="100" type="number" />
         </div>
       </div>
-      <div class="row q-gutter-md q-pt-md" v-for="(date, i) in randomDates" :key="'ran-dates-'+i">
+      <div class="row q-gutter-md q-pt-md" v-for="(time, i) in randomTimes" :key="'ran-times-'+i">
         <div class="col-2">
-          {{ date[2] }}
+          {{ time[0] }}
         </div>
-        <div class="col-2">
-          {{ date[1] }}
+        <div class="col-auto">
+          {{ time[1] }}
         </div>
-        <div class="col-auto tibetan">
-          {{ date[3] }}
-        </div>
+        <div class="col-12" v-html="time[2]"></div>
       </div>
     </div>
   </q-page>
