@@ -1,5 +1,5 @@
 <script setup>
-import { defineComponent, toRaw } from 'vue'
+import { defineComponent, toRaw, computed } from 'vue'
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
@@ -7,7 +7,7 @@ import {
   getArrayOfRandomInts,
   toTibetanNumber,
   Number2Text
-} from 'src/lib/utils'
+} from 'src/lib/numberUtils'
 
 let min = ref(0)
 let max = ref(1000)
@@ -15,15 +15,11 @@ let num = ref(10)
 
 const num2Text = new Number2Text(false,false,false)
 
-let randomNumbers = ref(getArrayOfRandomInts(min.value, max.value, num.value))
-console.log("randomNumbers", toRaw(randomNumbers.value))
-let numbers = ref(randomNumbers.value.reduce((acc, curr) => {
-  let tibNum = toTibetanNumber(curr)
-  console.log(`${num} > ${tibNum}`)
-  acc.push([curr, toTibetanNumber(curr), num2Text.tibetanNumberToText(curr)])
-  return acc
-}, []))
+// let randomNumbers = ref(getArrayOfRandomInts(min.value, max.value, num.value))
 
+const randomNumbers = computed(() => {
+  return getArrayOfRandomInts(min.value, max.value, num.value)
+})
 
 </script>
 
@@ -41,15 +37,15 @@ let numbers = ref(randomNumbers.value.reduce((acc, curr) => {
           <q-input outlined v-model="num" label="Num" type="number" />
         </div>
       </div>
-      <div class="row tib-numbers" v-for="num in numbers" :key="'ran-num-'+num">
+      <div class="row tib-numbers" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
         <div class="col-3">
-          {{ num[0] }}
+          {{ num }}
         </div>
         <div class="col-3">
-          {{ num[1] }}
+          {{ toTibetanNumber(num) }}
         </div>
         <div class="col-3">
-          {{ num[2] }}
+          {{ num2Text.tibetanNumberToText(num) }}
         </div>
       </div>
     </div>

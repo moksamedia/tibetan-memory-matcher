@@ -1,38 +1,7 @@
 
-const specialNumbers = {
-  '1': 'གཅིག་',
-  '2': 'གཉིས',
-  '3': 'གསུམ་',
-  '4': 'བཞི་',
-  '5': 'ལྔ་',
-  '6': 'དྲུག་',
-  '7': 'བདུན་',
-  '8': 'བརྒྱད་',
-  '9': 'དགུ་',
-  '10': 'བཅུ་',
-  '11': 'བཅུ་གཅིག་',
-  '12': 'བཅུ་གཉིས་',
-  '13': 'བཅུ་གསུམ་',
-  '14': 'བཅུ་བཞི་',
-  '15': 'བཅོ་ལྔ་',
-  '16': 'བཅུ་དྲུག་',
-  '17': 'བཅུ་བདུན་',
-  '18': 'བཅོ་བརྒྱད་',
-  '19': 'བཅུ་དགུ་',
-  '100': 'བརྒྱ་',
-  '200': 'ཉིས་བརྒྱ་',
-  '300': 'སུམ་བརྒྱ་',
-  '400': 'བཞི་བརྒྱ་',
-  '500': 'ལྔ་བརྒྱ་',
-  '600': 'དྲུག་བརྒྱུ་',
-  '700': 'བདུན་བརྒྱ་',
-  '800': 'བརྒྱད་བརྒྱ་',
-  '900': 'དགུ་བརྒྱ་'
-}
-
 const oneToNineteen = {
   '1': 'གཅིག་',
-  '2': 'གཉིས',
+  '2': 'གཉིས་',
   '3': 'གསུམ་',
   '4': 'བཞི་',
   '5': 'ལྔ་',
@@ -124,6 +93,73 @@ const bum = {
   '900000': 'འབུམ་དགུ་',
 }
 
+function getOneTo99(num) {
+
+  function getOneToNineteen(num) {
+    if (oneToNineteen[num]) {
+      return oneToNineteen[num]
+    }
+    else {
+      throw Error("oneToNineteen value not found: " + num)
+    }
+  }
+
+  function getTwentyTo99(num) {
+
+    // for zero, this add blank
+    const zeroToNine = {
+      '1': 'གཅིག་',
+      '2': 'གཉིས་',
+      '3': 'གསུམ་',
+      '4': 'བཞི་',
+      '5': 'ལྔ་',
+      '6': 'དྲུག་',
+      '7': 'བདུན་',
+      '8': 'བརྒྱད་',
+      '9': 'དགུ་',
+      '0': ''
+    }
+
+    const lastDigit = zeroToNine[num % 10]
+
+    if (num >= 20 && num < 30) {
+      return num === 20 ? 'ཉི་ཤུ་': 'ཉི་ཤུ་རྩ་' + lastDigit
+    }
+    else if (num >= 30 && num < 40) {
+      return num === 30 ? 'སུམ་བུ་' : 'སུམ་ཅུ་སོ་' + lastDigit
+    }
+    else if (num >= 40 && num < 50) {
+      return num === 40 ? 'བཞི་བཅུ་' : 'བཞི་བཅུ་ཞེ་' + lastDigit
+    }
+    else if (num >= 50 && num < 60) {
+      return num === 50 ? 'ལྔ་བཅུ་' : 'ལྔ་བཅུ་ང་' + lastDigit
+    }
+    else if (num >= 60 && num < 70) {
+      return num === 60 ? 'དྲུག་ཅུ་' : 'དྲུག་ཅུ་རེ་' + lastDigit
+    }
+    else if (num >= 70 && num < 80) {
+      return num === 70 ? 'བདུན་ཅུ་' : 'བདུན་ཅུ་དོན་' + lastDigit
+    }
+    else if (num >= 80 && num < 90) {
+      return num === 80 ? 'བརྒྱད་བཅུ་' : 'བརྒྱད་བཅུ་གྱ་' + lastDigit
+    }
+    else if (num >= 90 && num < 100) {
+      return num === 90 ? 'དགུ་བཅུ་' : 'དགུ་བཅུ་གོ་' + lastDigit
+    }
+    else {
+      throw Error ("getTwentyTo99 value not found: " + num)
+    }
+  }
+
+  if (num >= 20 && num < 100) {
+    return getTwentyTo99(num)
+  }
+  else if (num < 20 && num > 0) {
+    return getOneToNineteen(num)
+  }
+
+}
+
 const Number2Text = class {
 
   constructor(reverseThousands,reverseTenthousands,useNots) {
@@ -186,6 +222,7 @@ const Number2Text = class {
     else {
       throw Error ("getTwentyTo99 value not found: " + num)
     }
+
   }
 
   getHundreds(num) {
@@ -225,6 +262,7 @@ const Number2Text = class {
   }
 
   tibetanNumberToText(num) {
+    console.log("tibetanNumberToText num:" + num)
     let numInt = Number.isInteger(num) ? num : parseInt(num) // ensure Integer
     let numString = typeof num === 'string' ? num : num.toString()  // ensure String
     let length = numString.length
@@ -273,7 +311,7 @@ const Number2Text = class {
     }
     if (length >= 2) {
       let tens = numInt % 100 // whole number below 100, such as 34, 98, 21, ...
-      if (tens > 20) {
+      if (tens >= 20) {
         acc += this.getTwentyTo99(tens)
       }
       else {
@@ -282,6 +320,7 @@ const Number2Text = class {
       }
     }
     if (length == 1) {
+      if (num === 0) return 'ཀླད་སྐོར་'
       acc += this.getOneToNineteen(num)
     }
     return acc
@@ -291,7 +330,7 @@ const Number2Text = class {
 
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
-  max = Math.floor(max);
+  max = Math.floor(max)+1; // lets make it inclusive of max
   return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 }
 
@@ -317,11 +356,9 @@ const tibNums = new Map(Object.entries({
   '0':'༠',
 }))
 
-console.log(tibNums)
-
 function getTibetanNumberForChar(char) {
   if (tibNums.has(char.toString())) {
-    console.log(`${char} > ${tibNums.get(char)}`)
+    //console.log(`${char} > ${tibNums.get(char)}`)
     return tibNums.get(char)
   }
   else {
@@ -343,5 +380,6 @@ export {
   getRandomInt,
   getArrayOfRandomInts,
   toTibetanNumber,
+  getOneTo99,
   Number2Text
 }
