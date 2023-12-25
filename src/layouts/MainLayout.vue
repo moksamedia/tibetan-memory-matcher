@@ -53,10 +53,16 @@ import { storeToRefs } from 'pinia'
 
 const linksList = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
+    title: 'Numbers',
+    caption: 'Generate random numbers',
     icon: 'school',
-    link: 'https://quasar.dev'
+    link: '/numbers'
+  },
+  {
+    title: 'Dates',
+    caption: 'Generate random dates',
+    icon: 'school',
+    link: '/dates'
   },
 ]
 

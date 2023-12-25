@@ -2,12 +2,13 @@ import { defineStore } from 'pinia';
 
 export const useMatcherGameStore = defineStore('matcherGame', {
   state: () => ({
-    rows: 8,
+    rows: 6,
     cols: 4,
     selected: new Map(),
     maxSelect: 2,
     matched: new Map(),
-    reveals: 0
+    reveals: 0,
+    peeking: false
   }),
   getters: {
     numRows: (state) => state.rows,
@@ -51,6 +52,12 @@ export const useMatcherGameStore = defineStore('matcherGame', {
     incrementReveals() {
       this.reveals = this.reveals + 1
       console.log("reveals=" + this.reveals)
+    },
+    setPeekOn() {
+      this.peeking = true;
+    },
+    setPeekOff() {
+      this.peeking = false;
     }
   },
 });

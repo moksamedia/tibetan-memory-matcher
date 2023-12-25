@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex flex-center">
-    <div class="q-pa-md grid-container q-gutter-md">
-      <div class="row q-gutter-md" v-for="rowNumber in numRows" :key="'row'+rowNumber">
+    <div class="q-pa-sm grid-container q-gutter-sm">
+      <div class="row q-gutter-sm content-stretch" v-for="rowNumber in numRows" :key="'row'+rowNumber">
           <MatchCellVue
             v-for="colNumber in numColumns" :key="'col'+colNumber"
             :noteObj="getObj(rowNumber, colNumber)"
@@ -146,10 +146,6 @@ export default defineComponent({
 </script>
 
 <style type="text/scss">
-.grid-container {
-  width: 90%;
-  margin: 20px auto;
-}
 .q-page-container {
 background-color: rgb(206, 206, 206);
 }

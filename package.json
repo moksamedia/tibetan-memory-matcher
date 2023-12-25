@@ -6,7 +6,7 @@
   "author": "Andrew Hughes <andrewcarterhughes@gmail.com>",
   "private": true,
   "scripts": {
-    "test": "echo \"No test specified\" && exit 0",
+    "test": "vitest",
     "dev": "quasar dev",
     "build": "quasar build"
   },
@@ -21,7 +21,8 @@
     "@quasar/app-vite": "^1.3.0",
     "@rollup/plugin-dsv": "^3.0.4",
     "autoprefixer": "^10.4.2",
-    "postcss": "^8.4.14"
+    "postcss": "^8.4.14",
+    "vitest": "^1.1.0"
   },
   "engines": {
     "node": "^18 || ^16 || ^14.19",

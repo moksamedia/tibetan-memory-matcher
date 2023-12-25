@@ -1,30 +1,10 @@
-<template>
-  <q-item
-    clickable
-    tag="a"
-    target="_blank"
-    :href="link"
-  >
-    <q-item-section
-      v-if="icon"
-      avatar
-    >
-      <q-icon :name="icon" />
-    </q-item-section>
+<script setup>
+import { defineProps } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+const route = useRoute()
+const router = useRouter()
 
-    <q-item-section>
-      <q-item-label>{{ title }}</q-item-label>
-      <q-item-label caption>{{ caption }}</q-item-label>
-    </q-item-section>
-  </q-item>
-</template>
-
-<script>
-import { defineComponent } from 'vue'
-
-export default defineComponent({
-  name: 'EssentialLink',
-  props: {
+const {link} = defineProps({
     title: {
       type: String,
       required: true
@@ -44,6 +24,29 @@ export default defineComponent({
       type: String,
       default: ''
     }
-  }
+
 })
+
+function goToLink() {
+    router.push(link)
+}
+
 </script>
+<template>
+  <q-item
+    clickable
+    @click="goToLink"
+  >
+    <q-item-section
+      v-if="icon"
+      avatar
+    >
+      <q-icon :name="icon" />
+    </q-item-section>
+
+    <q-item-section>
+      <q-item-label>{{ title }}</q-item-label>
+      <q-item-label caption>{{ caption }}</q-item-label>
+    </q-item-section>
+  </q-item>
+</template>

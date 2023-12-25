@@ -11,3 +11,26 @@
 div.q-toolbar {
   color: black;
 }
+
+div.q-page-container {
+   background-color: white;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+@font-face {
+  font-family: Himalaya;
+  src: local('Himalaya'), url(@/css/fonts/Himalaya.ttf) format('truetype');
+}
+
+// src: local('Opensans-Bold'), url(@/assets/styles/fonts/OpenSans-Bold.ttf) format('truetype');

@@ -1,8 +1,12 @@
 <template>
 <div
-  class="col value-cell flex-center prevent-select"
-  :class="{front: front, selected: selected, notSelected: !selected, matched: matched}"
-  @click="_handlePress"
+  class="col flex-center value-cell prevent-select"
+  :class="{ front: front,
+            selected: selected,
+            notSelected: !selected,
+            matched: matched,
+            peeking: peeking}"
+  @click="handlePress"
   >
   <div>{{value}}</div>
 </div>
@@ -45,6 +49,10 @@ export default defineComponent({
       return store.isMatched(noteObj)
     })
 
+    const isPeeking = computed(() => {
+      return store.peeking
+    })
+
     function onclick(e) {
 
       if (isMatched.value) {
@@ -74,9 +82,10 @@ export default defineComponent({
     //console.log(`${props.row}, ${props.column} :: ${props.selectedRow}, ${props.selectedColumn}`)
 
     return {
-      _handlePress: onclick,
+      handlePress: onclick,
       selected: isSelected,
       matched: isMatched,
+      peeking: isPeeking,
       front: noteObj.side == "front",
       value: noteObj.value
     }
@@ -87,6 +96,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 .selected {
   background-color: rgb(241, 251, 255);
+  opacity: 1.0;
+}
+.peeking {
   opacity: 1.0;
 }
 .notSelected {
@@ -116,4 +128,5 @@ export default defineComponent({
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
 }
+
 </style>
