@@ -30,6 +30,40 @@ const specialNumbers = {
   '900': 'དགུ་བརྒྱ་'
 }
 
+const oneToNineteen = {
+  '1': 'གཅིག་',
+  '2': 'གཉིས',
+  '3': 'གསུམ་',
+  '4': 'བཞི་',
+  '5': 'ལྔ་',
+  '6': 'དྲུག་',
+  '7': 'བདུན་',
+  '8': 'བརྒྱད་',
+  '9': 'དགུ་',
+  '10': 'བཅུ་',
+  '11': 'བཅུ་གཅིག་',
+  '12': 'བཅུ་གཉིས་',
+  '13': 'བཅུ་གསུམ་',
+  '14': 'བཅུ་བཞི་',
+  '15': 'བཅོ་ལྔ་',
+  '16': 'བཅུ་དྲུག་',
+  '17': 'བཅུ་བདུན་',
+  '18': 'བཅོ་བརྒྱད་',
+  '19': 'བཅུ་དགུ་',
+}
+
+const hundreds = {
+  '100': 'བརྒྱ་',
+  '200': 'ཉིས་བརྒྱ་',
+  '300': 'སུམ་བརྒྱ་',
+  '400': 'བཞི་བརྒྱ་',
+  '500': 'ལྔ་བརྒྱ་',
+  '600': 'དྲུག་བརྒྱུ་',
+  '700': 'བདུན་བརྒྱ་',
+  '800': 'བརྒྱད་བརྒྱ་',
+  '900': 'དགུ་བརྒྱ་'
+}
+
 const thousands = {
   '1000': 'ཆིག་སྟོང་',
   '2000': 'ཉིས་སྟོང་',
@@ -97,6 +131,51 @@ const Number2Text = class {
     this.reverseThousands = reverseThousands
   }
 
+  getOneToNineteen(num) {
+    if (oneToNineteen[num]) {
+      return oneToNineteen[num]
+    }
+    else {
+      throw Error("oneToNineteen value not found")
+    }
+  }
+
+  getTwentyTo99(num) {
+    if (num >= 20 && num < 30) {
+      return 'ཉི་ཤུ་རྩ་' + this.getOneToNineteen(num % 10)
+    }
+    else if (num >= 30 && num < 40) {
+      return 'སུམ་ཅུ་སོ་' + this.getOneToNineteen(num % 10)
+    }
+    else if (num >= 40 && num < 50) {
+      return 'བཞི་བཅུ་ཞེ་' + this.getOneToNineteen(num % 10)
+    }
+    else if (num >= 50 && num < 60) {
+      return 'ལྔ་བཅུ་ང་' + this.getOneToNineteen(num % 10)
+    }
+    else if (num >= 60 && num < 70) {
+      return 'དྲུག་ཅུ་རེ་' + this.getOneToNineteen(num % 10)
+    }
+    else if (num >= 70 && num < 80) {
+      return 'བདུན་ཅུ་དོན་' + this.getOneToNineteen(num % 10)
+    }
+    else if (num >= 80 && num < 90) {
+      return 'བརྒྱད་བཅུ་གྱ་' + this.getOneToNineteen(num % 10)
+    }
+    else if (num >= 90 && num < 100) {
+      return 'དགུ་བཅུ་གོ་' + this.getOneToNineteen(num % 10)
+    }
+  }
+
+  getHundreds(num) {
+    if (hundreds[num]) {
+      return hundreds[num]
+    }
+    else {
+      throw Error("Hundreds value not found: " + num)
+    }
+  }
+
   getThousands(num) {
     if (thousands[num]) {
       return thousands[num]
@@ -122,6 +201,59 @@ const Number2Text = class {
     else {
       throw Error("Hundred-thousands value not found")
     }
+  }
+
+  tibetanNumberToText2(num) {
+    let numString = num.toString();
+    let length = numString.length
+    if (length > 6) {
+      throw Error("Number too big")
+    }
+    let acc = []
+    if (length >= 6) {
+      acc.push(this.getBum(numString[5] * 100000))
+    }
+    if (length >= 5) {
+      let tenthousands = numString[length-5] * 10000
+      if (tenthousands === '0') {
+        acc.push('ཁྲི་མེད་')
+      }
+      else {
+        acc.push(this.getTenThousands(tenthousands))
+      }
+    }
+    if (length >= 4) {
+      let thousands = numString[length-4] * 1000
+      if (thousands === '0') {
+        acc.push('སྟོང་མེད་')
+      }
+      else {
+        acc.push(this.getThousands(thousands))
+      }
+    }
+    if (length >= 3) {
+      let hundreds = numString[length-3] * 100
+      if (hundreds === '0') {
+        acc.push('བརྒྱ་མེད་')
+      }
+      else {
+        acc.push(this.getHundreds(hundreds))
+        if (num < 1000) acc.push('དང་')
+      }
+    }
+    if (length >= 2) {
+      let tens = num % 100 // whole number below 100, such as 34, 98, 21, ...
+      if (numString[1] === '0') acc.push('བཅུ་མེད་')
+      if (tens > 20) {
+        acc.push(this.getTwentyTo99(tens))
+      }
+      else {
+        acc.push(this.getOneToNineteen(tens))
+      }
+    }
+    let result = acc.join('')
+    console.log(result)
+    return result
   }
 
   tibetanNumberToText(num) {
