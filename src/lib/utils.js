@@ -126,9 +126,10 @@ const bum = {
 
 const Number2Text = class {
 
-  constructor(reverseThousands,reverseTenthousands) {
+  constructor(reverseThousands,reverseTenthousands,useNots) {
     this.reverseTenthousands = reverseTenthousands
     this.reverseThousands = reverseThousands
+    this.useNots = useNots
   }
 
   getOneToNineteen(num) {
@@ -136,34 +137,54 @@ const Number2Text = class {
       return oneToNineteen[num]
     }
     else {
-      throw Error("oneToNineteen value not found")
+      throw Error("oneToNineteen value not found: " + num)
     }
   }
 
   getTwentyTo99(num) {
+
+    // for zero, this add blank
+    const zeroToNine = {
+      '1': 'གཅིག་',
+      '2': 'གཉིས་',
+      '3': 'གསུམ་',
+      '4': 'བཞི་',
+      '5': 'ལྔ་',
+      '6': 'དྲུག་',
+      '7': 'བདུན་',
+      '8': 'བརྒྱད་',
+      '9': 'དགུ་',
+      '0': ''
+    }
+
+    const lastDigit = zeroToNine[num % 10]
+
     if (num >= 20 && num < 30) {
-      return 'ཉི་ཤུ་རྩ་' + this.getOneToNineteen(num % 10)
+      return num === 20 ? 'ཉི་ཤུ་': 'ཉི་ཤུ་རྩ་' + lastDigit
     }
     else if (num >= 30 && num < 40) {
-      return 'སུམ་ཅུ་སོ་' + this.getOneToNineteen(num % 10)
+      return num === 30 ? 'སུམ་བུ་' : 'སུམ་ཅུ་སོ་' + lastDigit
     }
     else if (num >= 40 && num < 50) {
-      return 'བཞི་བཅུ་ཞེ་' + this.getOneToNineteen(num % 10)
+      return num === 40 ? 'བཞི་བཅུ་' : 'བཞི་བཅུ་ཞེ་' + lastDigit
     }
     else if (num >= 50 && num < 60) {
-      return 'ལྔ་བཅུ་ང་' + this.getOneToNineteen(num % 10)
+      return num === 50 ? 'ལྔ་བཅུ་' : 'ལྔ་བཅུ་ང་' + lastDigit
     }
     else if (num >= 60 && num < 70) {
-      return 'དྲུག་ཅུ་རེ་' + this.getOneToNineteen(num % 10)
+      return num === 60 ? 'དྲུག་ཅུ་' : 'དྲུག་ཅུ་རེ་' + lastDigit
     }
     else if (num >= 70 && num < 80) {
-      return 'བདུན་ཅུ་དོན་' + this.getOneToNineteen(num % 10)
+      return num === 70 ? 'བདུན་ཅུ་' : 'བདུན་ཅུ་དོན་' + lastDigit
     }
     else if (num >= 80 && num < 90) {
-      return 'བརྒྱད་བཅུ་གྱ་' + this.getOneToNineteen(num % 10)
+      return num === 80 ? 'བརྒྱད་བཅུ་' : 'བརྒྱད་བཅུ་གྱ་' + lastDigit
     }
     else if (num >= 90 && num < 100) {
-      return 'དགུ་བཅུ་གོ་' + this.getOneToNineteen(num % 10)
+      return num === 90 ? 'དགུ་བཅུ་' : 'དགུ་བཅུ་གོ་' + lastDigit
+    }
+    else {
+      throw Error ("getTwentyTo99 value not found: " + num)
     }
   }
 
@@ -203,136 +224,67 @@ const Number2Text = class {
     }
   }
 
-  tibetanNumberToText2(num) {
-    let numString = num.toString();
+  tibetanNumberToText(num) {
+    let numInt = Number.isInteger(num) ? num : parseInt(num) // ensure Integer
+    let numString = typeof num === 'string' ? num : num.toString()  // ensure String
     let length = numString.length
     if (length > 6) {
       throw Error("Number too big")
     }
-    let acc = []
+    let acc = ''
     if (length >= 6) {
-      acc.push(this.getBum(numString[5] * 100000))
+      let bum = numString[length-6] * 100000
+      //console.log('bum:' + bum)
+      acc += this.getBum(bum)
+      if (num % 100000 === 0) return acc
     }
     if (length >= 5) {
       let tenthousands = numString[length-5] * 10000
-      if (tenthousands === '0') {
-        acc.push('ཁྲི་མེད་')
+      //console.log('tenthousands:' + tenthousands)
+      if (tenthousands === 0) {
+        if (this.useNots) acc += 'ཁྲི་མེད་'
       }
       else {
-        acc.push(this.getTenThousands(tenthousands))
+        acc += this.getTenThousands(tenthousands)
       }
+      if (num % 10000 === 0) return acc
     }
     if (length >= 4) {
       let thousands = numString[length-4] * 1000
-      if (thousands === '0') {
-        acc.push('སྟོང་མེད་')
+      console.log('thousands:' + thousands)
+      if (thousands === 0) {
+        if (this.useNots) acc += 'སྟོང་མེད་'
       }
       else {
-        acc.push(this.getThousands(thousands))
+        acc += this.getThousands(thousands)
       }
+      if (num % 1000 === 0) return acc
     }
     if (length >= 3) {
-      let hundreds = numString[length-3] * 100
-      if (hundreds === '0') {
-        acc.push('བརྒྱ་མེད་')
+      let hundreds = numString[length-3] * 100 // hundreds is third from the end (i.e., length) and * 100
+      if (hundreds === 0) {
+        if (this.useNots) acc += 'བརྒྱ་མེད་'
       }
       else {
-        acc.push(this.getHundreds(hundreds))
-        if (num < 1000) acc.push('དང་')
+        acc += this.getHundreds(hundreds)
+        if (num % 100 === 0) return acc
+        if (numInt < 1000) acc += 'དང་'
       }
     }
     if (length >= 2) {
-      let tens = num % 100 // whole number below 100, such as 34, 98, 21, ...
-      if (numString[1] === '0') acc.push('བཅུ་མེད་')
+      let tens = numInt % 100 // whole number below 100, such as 34, 98, 21, ...
       if (tens > 20) {
-        acc.push(this.getTwentyTo99(tens))
+        acc += this.getTwentyTo99(tens)
       }
       else {
-        acc.push(this.getOneToNineteen(tens))
+        if (numString[length - 2] === '0' && this.useNots) acc += 'བཅུ་མེད་'
+        acc += this.getOneToNineteen(tens)
       }
     }
-    let result = acc.join('')
-    console.log(result)
-    return result
-  }
-
-  tibetanNumberToText(num) {
-    console.log(num)
-    if (specialNumbers[num]) {
-      return specialNumbers[num]
+    if (length == 1) {
+      acc += this.getOneToNineteen(num)
     }
-    else if (num >= 20 && num < 30) {
-      return 'ཉི་ཤུ་རྩ་' + this.tibetanNumberToText(num % 10)
-    }
-    else if (num >= 30 && num < 40) {
-      return 'སུམ་ཅུ་སོ་' + this.tibetanNumberToText(num % 10)
-    }
-    else if (num >= 40 && num < 50) {
-      return 'བཞི་བཅུ་ཞེ་' + this.tibetanNumberToText(num % 10)
-    }
-    else if (num >= 50 && num < 60) {
-      return 'ལྔ་བཅུ་ང་' + this.tibetanNumberToText(num % 10)
-    }
-    else if (num >= 60 && num < 70) {
-      return 'དྲུག་ཅུ་རེ་' + this.tibetanNumberToText(num % 10)
-    }
-    else if (num >= 70 && num < 80) {
-      return 'བདུན་ཅུ་དོན་' + this.tibetanNumberToText(num % 10)
-    }
-    else if (num >= 80 && num < 90) {
-      return 'བརྒྱད་བཅུ་གྱ་' + this.tibetanNumberToText(num % 10)
-    }
-    else if (num >= 90 && num < 100) {
-      return 'དགུ་བཅུ་གོ་' + this.tibetanNumberToText(num % 10)
-    }
-    else if (num === 100) {
-      return 'བརྒྱ་'
-    }
-    else if (num > 100 && num < 1000) {
-      let tens = num % 100 // whole number below 100, such as 34, 98, 21, ...
-      let hundreds = num % 1000 - num % 100 // just the hundreds, 100, 200, 300, ...
-      if (tens) {
-        // use parentNum to detect case when we have thousands, so omit dang
-        return this.tibetanNumberToText(hundreds) + "དང་" + this.tibetanNumberToText(tens)
-      }
-      else {
-        return this.tibetanNumberToText(hundreds)
-      }
-    }
-    else if (num > 1000 && num < 10000) {
-      let thousands = num % 10000 - num % 1000
-      let tens = num % 100 // whole number below 100, such as 34, 98, 21, ...
-      let hundreds = num % 1000 - num % 100 // just the hundreds, 100, 200, 300, ...
-      if (hundreds) {
-        if (tens) {
-          return this.getThousands(thousands) + this.tibetanNumberToText(hundreds) +  this.tibetanNumberToText(tens)
-        }
-        else {
-          return this.getThousands(thousands) + this.tibetanNumberToText(hundreds)
-        }
-      }
-      else return this.getThousands(thousands)
-    }
-    else if (num > 10000 && num < 100000) {
-      let tenthousands = num % 100000 - num % 10000
-      let thousands = num % 10000
-      if (thousands) {
-        return this.getTenThousands(tenthousands) + this.tibetanNumberToText(thousands) // this needs to recur, not truncated thousands
-      }
-      else {
-        return this.getTenThousands(tenthousands)
-      }
-    }
-    else if (num > 100000 && num < 1000000) {
-      let onehundredthousands = num % 1000000 - num % 100000
-      let tenthousands = num % 100000
-      if (tenthousands) {
-        return this.getBum(tenthousands) + this.tibetanNumberToText(tenthousands) // this needs to recur, not truncated thousands
-      }
-      else {
-        return this.getBum(tenthousands)
-      }
-    }
+    return acc
   }
 
 }

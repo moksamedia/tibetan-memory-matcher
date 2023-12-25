@@ -2,18 +2,25 @@
 import { defineComponent, toRaw } from 'vue'
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { getRandomInt, getArrayOfRandomInts, toTibetanNumber } from 'src/lib/utils'
+import {
+  getRandomInt,
+  getArrayOfRandomInts,
+  toTibetanNumber,
+  Number2Text
+} from 'src/lib/utils'
 
 let min = ref(0)
 let max = ref(1000)
 let num = ref(10)
 
-let randomNumbers = getArrayOfRandomInts(min.value, max.value, num.value)
-console.log("randomNumbers", randomNumbers)
-let numbers = ref(randomNumbers.reduce((acc, curr) => {
+const num2Text = new Number2Text(false,false,false)
+
+let randomNumbers = ref(getArrayOfRandomInts(min.value, max.value, num.value))
+console.log("randomNumbers", toRaw(randomNumbers.value))
+let numbers = ref(randomNumbers.value.reduce((acc, curr) => {
   let tibNum = toTibetanNumber(curr)
   console.log(`${num} > ${tibNum}`)
-  acc.push([curr, toTibetanNumber(curr)])
+  acc.push([curr, toTibetanNumber(curr), num2Text.tibetanNumberToText(curr)])
   return acc
 }, []))
 
@@ -40,6 +47,9 @@ let numbers = ref(randomNumbers.reduce((acc, curr) => {
         </div>
         <div class="col-3">
           {{ num[1] }}
+        </div>
+        <div class="col-3">
+          {{ num[2] }}
         </div>
       </div>
     </div>
