@@ -4,7 +4,7 @@ import {
   getArrayOfRandomInts,
   toTibetanNumber,
   Number2Text
-} from './utils'
+} from './numberUtils'
 
 test('should return a random number', () => {
   expect(getRandomInt(0, 10)).toBeGreaterThanOrEqual(0).toBeLessThan(10)

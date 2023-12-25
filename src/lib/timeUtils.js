@@ -53,19 +53,55 @@ function getRandomTimeAsText()  {
   let mins = generateRandomMinutes();
 }
 
-function getTimeAsText(hour,mins) {
+// all ordinal except for 11 and 12
+function getAllOrdinalExcept11And12(hour) {
+  if (hour < 11) {
+    return ordinalNumbers[hour]
+  }
+  else {
+    return cardinalNumbers[hour]
+  }
+}
+
+function getAllCardinalExceptFirst(hour) {
+  if (hour == 1) {
+    return ordinalNumbers[hour]
+  }
+  else {
+    return cardinalNumbers[hour]
+  }
+}
+
+function getNextHour(hour) {
+  return parseInt(hour) === 12 ? 1 : parseInt(hour) + 1
+}
+
+function getTimeAsText_yolNas(hour,mins) {
+  return 'ཆུ་ཚོད་' + getAllOrdinalExcept11And12(hour) + 'ཡོལ་ནས་སྐར་མ་' + getOneTo99(parseInt(mins)) + 'རེད།'
+}
+
+function getTimeAsText_zinPar(hour,mins) {
+  let nextHour = getNextHour(hour)
+  return 'ཆུ་ཚོད་' + getAllOrdinalExcept11And12(nextHour) + 'ཟིན་པར་སྐར་མ་' + getOneTo99(60-mins) + 'འདུག'
+}
+
+function getTimeAsText_dang(hour,mins) {
+  return 'ཆུ་ཚོད་' + getAllCardinalExceptFirst(hour) + 'དང་སྐར་མ་' + getOneTo99(parseInt(mins)) + 'རེད།'
+}
+
+function getTimeAsText(hour,mins,useDang) { // dang or yol nas for time past
   if (mins == "00") {
-    return 'ཆུ་ཚོད་' + getHourText(hour) + 'ཏག་ཏག་རེད།'
+    return 'ཆུ་ཚོད་' + getAllOrdinalExcept11And12(hour) + 'ཏག་ཏག་རེད།'
   }
   else if (mins == "30") {
-    return 'ཆུ་ཚོད་' + getHourText(hour) + 'དང་ཕྱེད་ཀ་རེད།'
+    return 'ཆུ་ཚོད་' + getAllCardinalExceptFirst(hour) + 'དང་ཕྱེད་ཀ་རེད།'
   }
   else if (mins > 30) {
-    let nextHour = parseInt(hour) === 12 ? 1 : parseInt(hour) + 1
-    return 'ཆུ་ཚོད་' + getHourText(nextHour) + 'ཟིན་པར་སྐར་མ་' + getOneTo99(60-mins) + 'འདུག'
+    return getTimeAsText_zinPar(hour,mins)
   }
   else { // mins < 30
-    return 'ཆུ་ཚོད་' + getHourText(hour) + 'ཡོལ་ནས་སྐར་མ་' + getOneTo99(parseInt(mins)) + 'རེད།'
+    if (useDang) return getTimeAsText_dang(hour,mins)
+    else return getTimeAsText_yolNas(hour,mins)
   }
 }
 
@@ -73,5 +109,6 @@ export {
   generateRandomTimeString,
   generateRandomMinutes,
   generateRandomHour,
-  getTimeAsText
+  getTimeAsText,
+  getTimeAsText_dang
 }
