@@ -5,6 +5,8 @@ import { storeToRefs } from 'pinia'
 import * as dateUtils from 'src/lib/dateUtils'
 import * as timeUtils from 'src/lib/timeUtils'
 import moment from 'moment'
+import * as utils from 'src/lib/utils'
+import Click2Show from 'src/components/Click2Show.vue'
 
 let numEach = ref(10)
 
@@ -14,7 +16,7 @@ const randomTimes = computed(() => {
     let hour = timeUtils.generateRandomHour();
     let mins = timeUtils.generateRandomMinutes()
     let timeObj = timeUtils.getTimeAsText(hour,mins)
-    acc.push([hour+":"+mins,timeObj.string,timeUtils.hints[timeObj.type]])
+    acc.push([hour+":"+mins,timeObj.string,utils.styleTibetan(timeUtils.hints[timeObj.type])])
   }
   return acc
 })
@@ -32,10 +34,12 @@ const randomTimes = computed(() => {
         <div class="col-2">
           {{ time[0] }}
         </div>
-        <div class="col-auto">
-          {{ time[1] }}
+        <div class="col-grow" style="text-align: right;">
+          <Click2Show :value="time[1]" divClass="tibetan" :vHtml="true"/>
         </div>
-        <div class="col-12" v-html="time[2]"></div>
+        <div class="col-12">
+          <Click2Show :value="time[2]" :vHtml="true"/>
+        </div>
       </div>
     </div>
   </q-page>

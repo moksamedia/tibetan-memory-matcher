@@ -1,4 +1,4 @@
-<script setup>
+src/components/EssentialLink.vue<script setup>
 import { defineProps } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()

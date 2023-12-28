@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import * as dateUtils from 'src/lib/dateUtils'
 import * as timeUtils from 'src/lib/timeUtils'
 import moment from 'moment'
+import Click2Show from 'src/components/Click2Show.vue'
 
 let numEach = ref(10)
 
@@ -40,8 +41,8 @@ console.log("randomDates", toRaw(randomDates.value))
         <div class="col-2">
           {{ date[1] }}
         </div>
-        <div class="col-auto tibetan">
-          {{ date[3] }}
+        <div class="col-grow" style="text-align: right;">
+          <Click2Show :value="date[3]" divClass="tibetan"/>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 <script setup>
 import { defineComponent, toRaw, computed } from 'vue'
+import Click2Show from 'src/components/Click2Show.vue'
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
@@ -37,15 +38,15 @@ const randomNumbers = computed(() => {
           <q-input outlined v-model="num" label="Num" type="number" />
         </div>
       </div>
-      <div class="row tib-numbers" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
-        <div class="col-3">
+      <div class="row" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
+        <div class="col-2">
           {{ num }}
         </div>
-        <div class="col-3">
+        <div class="col-2 tibetan">
           {{ toTibetanNumber(num) }}
         </div>
-        <div class="col-3">
-          {{ num2Text.tibetanNumberToText(num) }}
+        <div class="col-grow" style="text-align: right;">
+          <Click2Show :value="num2Text.tibetanNumberToText(num)" divClass="tibetan"/>
         </div>
       </div>
     </div>
@@ -58,6 +59,7 @@ div.numbers-input-col input {
   width: auto;
 }
 
-.tib-numbers {
+.tibetan {
+  font-size: 160%;
 }
 </style>
