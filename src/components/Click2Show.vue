@@ -2,7 +2,7 @@
 
 import { ref } from 'vue';
 
-const {link} = defineProps({
+const {isShow} = defineProps({
     value: {
       type: String,
       required: true
@@ -28,11 +28,14 @@ const {link} = defineProps({
     vHtml: {
       type: Boolean,
       default: false
+    },
+    isShow: {
+      type: Boolean,
+      default: false
     }
-
 })
 
-let show = ref(false)
+let show = ref(isShow)
 
 </script>
 <template>
@@ -41,11 +44,11 @@ let show = ref(false)
       outline
       rounded
       :color="btnColor"
-      label="show"
+      :label="label"
       @click="show=true"
       :size="btnSize"
     />
     <div v-else-if="vHtml" :class="divClass" :style=divStyle v-html="value"></div>
-    <div v-else class="divClass" :style=divStyle >{{ value }}</div>
+    <div v-else :class="divClass" :style=divStyle >{{ value }}</div>
 
 </template>

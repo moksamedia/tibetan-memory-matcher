@@ -16,7 +16,17 @@ const randomTimes = computed(() => {
     let hour = timeUtils.generateRandomHour();
     let mins = timeUtils.generateRandomMinutes()
     let timeObj = timeUtils.getTimeAsText(hour,mins)
-    acc.push([hour+":"+mins,timeObj.string,utils.styleTibetan(timeUtils.hints[timeObj.type])])
+
+
+    if (mins < 30 ) {
+      acc.push([hour+":"+mins + " (use ཡོལ་ནས་)",timeObj.string,utils.styleTibetan(timeUtils.hints[timeObj.type])])
+      let timeObj2 = timeUtils.getTimeAsText(hour,mins,true)
+      acc.push([hour+":"+mins + " (use དང་)",timeObj2.string,utils.styleTibetan(timeUtils.hints[timeObj2.type])])
+    }
+  else {
+      acc.push([hour+":"+mins,timeObj.string,utils.styleTibetan(timeUtils.hints[timeObj.type])])
+    }
+
   }
   return acc
 })
@@ -35,10 +45,10 @@ const randomTimes = computed(() => {
           {{ time[0] }}
         </div>
         <div class="col-grow" style="text-align: right;">
-          <Click2Show :value="time[1]" divClass="tibetan" :vHtml="true"/>
+          <Click2Show :value="time[1]" divClass="tibetan" :vHtml="true" :key="time+i" :isShow="false"/>
         </div>
         <div class="col-12">
-          <Click2Show :value="time[2]" :vHtml="true"/>
+          <Click2Show label="hint" :value="time[2]" :vHtml="true" :key="hint+i" :isShow="false"/>
         </div>
       </div>
     </div>

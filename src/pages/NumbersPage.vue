@@ -60,6 +60,6 @@ div.numbers-input-col input {
 }
 
 .tibetan {
-  font-size: 160%;
+  font-size: 24px;
 }
 </style>
