@@ -105,9 +105,29 @@ const revealSpeakingNumber = (index) => {
   speakingRevealed.value[index] = true
 }
 
+// Play audio for listening mode, cycling through versions
+const playListeningAudio = async (number, index) => {
+  const versions = num2Text.getAllVersions(number).strings
+
+  // Initialize version index if not set
+  if (listeningVersionIndex.value[index] === undefined) {
+    listeningVersionIndex.value[index] = 0
+  }
+
+  const currentVersion = versions[listeningVersionIndex.value[index]]
+  const key = `listen-${index}`
+
+  // Play the audio
+  await playAudio(currentVersion, key)
+
+  // Cycle to next version for next play
+  listeningVersionIndex.value[index] = (listeningVersionIndex.value[index] + 1) % versions.length
+}
+
 // Listening mode state
 const listeningAnswers = ref({})
 const listeningRevealed = ref({})
+const listeningVersionIndex = ref({})
 
 const checkAnswer = (index, number) => {
   const userAnswer = listeningAnswers.value[index]?.trim()
@@ -318,10 +338,10 @@ const appendNumeral = (index, numeral) => {
                 color="primary"
                 :icon="isPlayingAudio(`listen-${i}`) ? 'volume_up' : 'play_arrow'"
                 :loading="isLoadingAudio(`listen-${i}`)"
-                @click="playAudio(num2Text.getAllVersions(number).strings[0], `listen-${i}`)"
+                @click="playListeningAudio(number, i)"
                 size="md"
               >
-                <q-tooltip>Play audio</q-tooltip>
+                <q-tooltip>Play audio (cycles through versions)</q-tooltip>
               </q-btn>
             </div>
 
