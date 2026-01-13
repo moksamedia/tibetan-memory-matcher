@@ -1,3 +1,4 @@
+const MAX_SUPPORTED_NUMBER = 999999999
 
 const oneToNineteen = {
   '1': 'གཅིག་',
@@ -426,8 +427,8 @@ const Number2Text = class {
     if (numInt < 0) {
       throw Error("Negative numbers are not supported")
     }
-    if (numInt > 999999999) {
-      throw Error("Number exceeds maximum supported value of 999,999,999")
+    if (numInt > MAX_SUPPORTED_NUMBER) {
+      throw Error(`Number exceeds maximum supported value of ${MAX_SUPPORTED_NUMBER.toLocaleString('en-US')}`)
     }
 
     let numString = typeof num === 'string' ? num : num.toString()  // ensure String
@@ -525,8 +526,8 @@ const Number2Text = class {
     if (numInt < 0) {
       throw Error("Negative numbers are not supported")
     }
-    if (numInt > 999999999) {
-      throw Error("Number exceeds maximum supported value of 999,999,999")
+    if (numInt > MAX_SUPPORTED_NUMBER) {
+      throw Error(`Number exceeds maximum supported value of ${MAX_SUPPORTED_NUMBER.toLocaleString('en-US')}`)
     }
     if (numInt === 0) {
       return ['ཀླད་སྐོར་']
@@ -755,6 +756,7 @@ function toTibetanNumber(number) {
 }
 
 export {
+  MAX_SUPPORTED_NUMBER,
   getRandomInt,
   getArrayOfRandomInts,
   toTibetanNumber,

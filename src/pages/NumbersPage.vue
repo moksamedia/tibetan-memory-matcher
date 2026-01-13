@@ -5,6 +5,7 @@ import Click2ShowSlot from 'src/components/Click2ShowSlot.vue'
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
+  MAX_SUPPORTED_NUMBER,
   getRandomInt,
   getArrayOfRandomInts,
   toTibetanNumber,
@@ -34,10 +35,28 @@ const formatNumber = (num) => {
     <div class="q-pa-sm grid-container q-gutter-sm">
       <div class="row">
         <div class="col-2 numbers-input-col">
-          <q-input outlined v-model="min" label="Min" type="number" />
+          <q-input
+            outlined
+            v-model="min"
+            label="Min"
+            type="number"
+            min="0"
+            :max="MAX_SUPPORTED_NUMBER"
+            :rules="[
+              val => val >= 0 || 'Min cannot be negative',
+              val => val <= MAX_SUPPORTED_NUMBER || `Min cannot exceed ${MAX_SUPPORTED_NUMBER.toLocaleString('en-US')}`
+            ]"
+          />
         </div>
         <div class="col-2 numbers-input-col">
-          <q-input outlined v-model="max" label="Max" type="number" />
+          <q-input
+            outlined
+            v-model="max"
+            label="Max"
+            type="number"
+            :max="MAX_SUPPORTED_NUMBER"
+            :rules="[val => val <= MAX_SUPPORTED_NUMBER || `Max cannot exceed ${MAX_SUPPORTED_NUMBER.toLocaleString('en-US')}`]"
+          />
         </div>
         <div class="col-2 numbers-input-col">
           <q-input outlined v-model="num" label="Num" type="number" />
