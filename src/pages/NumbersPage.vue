@@ -71,8 +71,12 @@ const formatNumber = (num) => {
         </div>
         <div class="col-grow" style="text-align: right;">
           <Click2ShowSlot>
-            <div v-for="(version, idx) in num2Text.getAllVersions(num).strings" :key="'version-'+i+'-'+idx" class="tibetan">
-              {{ version }}
+            <div v-for="(segmentGroup, idx) in num2Text.getAllVersions(num).segments" :key="'version-'+i+'-'+idx" class="tibetan">
+              <span
+                v-for="(segment, segIdx) in segmentGroup"
+                :key="'seg-'+i+'-'+idx+'-'+segIdx"
+                :class="'order-' + segment.order"
+              >{{ segment.text }}</span>
             </div>
           </Click2ShowSlot>
         </div>
@@ -89,5 +93,42 @@ div.numbers-input-col input {
 
 .tibetan {
   font-size: 24px;
+}
+
+// Subtle color coding for different orders of magnitude
+.order-dungphyur {
+  color: #9b59b6; // Purple
+}
+
+.order-byeba {
+  color: #3498db; // Blue
+}
+
+.order-saya {
+  color: #1abc9c; // Teal
+}
+
+.order-bum {
+  color: #27ae60; // Green
+}
+
+.order-tenthousands {
+  color: #95a5a6; // Cool gray
+}
+
+.order-thousands {
+  color: #e67e22; // Orange
+}
+
+.order-hundreds {
+  color: #f39c12; // Amber
+}
+
+.order-tens-ones, .order-ones {
+  color: #7f8c8d; // Gray
+}
+
+.order-zero {
+  color: #34495e; // Dark gray
 }
 </style>
