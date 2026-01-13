@@ -435,10 +435,11 @@ const Number2Text = class {
       let bumValue = parseInt(numString[length-6]) * 100000
       let remainder = numInt % 100000
       let rest = buildRemainder(remainder, true)
+      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
 
       return [
         bum[bumValue] + rest,
-        bumPhrag[bumValue] + rest
+        bumPhrag[bumValue] + phragRest
       ]
     }
 
@@ -447,10 +448,11 @@ const Number2Text = class {
       let value = parseInt(numString[length-5]) * 10000
       let remainder = numInt % 10000
       let rest = buildRemainder(remainder, true)
+      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
 
       return [
         tenthousands[value] + rest,
-        tenthousandsPhrag[value] + rest,
+        tenthousandsPhrag[value] + phragRest,
         tenthousandsReversed[value] + rest
       ]
     }
@@ -460,10 +462,11 @@ const Number2Text = class {
       let value = parseInt(numString[length-4]) * 1000
       let remainder = numInt % 1000
       let rest = buildRemainder(remainder, true)
+      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
 
       return [
         thousands[value] + rest,
-        thousandsPhrag[value] + rest,
+        thousandsPhrag[value] + phragRest,
         thousandsReversed[value] + rest
       ]
     }
