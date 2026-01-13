@@ -33,6 +33,18 @@ const hundreds = {
   '900': 'དགུ་བརྒྱ་'
 }
 
+const hundredsPhrag = {
+  '100': 'བརྒྱ་ཕྲག་གཅིག་',
+  '200': 'བརྒྱ་ཕྲག་ཉིས་',
+  '300': 'བརྒྱ་ཕྲག་སུམ་',
+  '400': 'བརྒྱ་ཕྲག་བཞི་',
+  '500': 'བརྒྱ་ཕྲག་ལྔ་',
+  '600': 'བརྒྱ་ཕྲག་དྲུག་',
+  '700': 'བརྒྱ་ཕྲག་བདུན་',
+  '800': 'བརྒྱ་ཕྲག་བརྒྱད་',
+  '900': 'བརྒྱ་ཕྲག་དགུ་'
+}
+
 const thousands = {
   '1000': 'ཆིག་སྟོང་',
   '2000': 'ཉིས་སྟོང་',
@@ -43,6 +55,18 @@ const thousands = {
   '7000': 'བདུན་སྟོང་',
   '8000': 'བརྒྱད་སྟོང་',
   '9000': 'དགུ་སྟོང་',
+}
+
+const thousandsPhrag = {
+  '1000': 'སྟོང་ཕྲག་གཅིག་',
+  '2000': 'སྟོང་ཕྲག་ཉིས་',
+  '3000': 'སྟོང་ཕྲག་སུམ་',
+  '4000': 'སྟོང་ཕྲག་བཞི་',
+  '5000': 'སྟོང་ཕྲག་ལྔ་',
+  '6000': 'སྟོང་ཕྲག་དྲུག་',
+  '7000': 'སྟོང་ཕྲག་བདུན་',
+  '8000': 'སྟོང་ཕྲག་བརྒྱད་',
+  '9000': 'སྟོང་ཕྲག་དགུ་',
 }
 
 const thousandsReversed = {
@@ -69,6 +93,18 @@ const tenthousands = {
   '90000': 'དགུ་ཁྲི་',
 }
 
+const tenthousandsPhrag = {
+  '10000': 'ཁྲི་ཕྲག་གཅིག་',
+  '20000': 'ཁྲི་ཕྲག་ཉིས་',
+  '30000': 'ཁྲི་ཕྲག་སུམ་',
+  '40000': 'ཁྲི་ཕྲག་བཞི་',
+  '50000': 'ཁྲི་ཕྲག་ལྔ་',
+  '60000': 'ཁྲི་ཕྲག་དྲུག་',
+  '70000': 'ཁྲི་ཕྲག་བདུན་',
+  '80000': 'ཁྲི་ཕྲག་བརྒྱད་',
+  '90000': 'ཁྲི་ཕྲག་དགུ་',
+}
+
 const tenthousandsReversed = {
   '10000': 'ཁྲི་གཅིག་',
   '20000': 'ཁྲི་གཉིས་',
@@ -91,6 +127,18 @@ const bum = {
   '700000': 'འབུམ་བདུན་',
   '800000': 'འབུམ་བརྒྱད་',
   '900000': 'འབུམ་དགུ་',
+}
+
+const bumPhrag = {
+  '100000': 'འབུམ་ཕྲག་གཅིག་',
+  '200000': 'འབུམ་ཕྲག་གཉིས་',
+  '300000': 'འབུམ་ཕྲག་གསུམ་',
+  '400000': 'འབུམ་ཕྲག་བཞི་',
+  '500000': 'འབུམ་ཕྲག་ལྔ་',
+  '600000': 'འབུམ་ཕྲག་དྲུག་',
+  '700000': 'འབུམ་ཕྲག་བདུན་',
+  '800000': 'འབུམ་ཕྲག་བརྒྱད་',
+  '900000': 'འབུམ་ཕྲག་དགུ་',
 }
 
 function getOneTo99(num) {
@@ -324,6 +372,128 @@ const Number2Text = class {
       acc += this.getOneToNineteen(num)
     }
     return acc
+  }
+
+  getAllVersions(num) {
+    let numInt = Number.isInteger(num) ? num : parseInt(num)
+    let numString = typeof num === 'string' ? num : num.toString()
+    let length = numString.length
+
+    if (numInt === 0) {
+      return ['ཀླད་སྐོར་']
+    }
+
+    if (length > 6) {
+      throw Error("Number too big")
+    }
+
+    // Helper to build the remainder with standard forms only
+    const buildRemainder = (remainder, hasHigherThanHundreds) => {
+      if (remainder === 0) return ''
+
+      let remString = remainder.toString()
+      let remLength = remString.length
+      let acc = ''
+
+      // Thousands (standard only)
+      if (remLength >= 4) {
+        let thousandsVal = parseInt(remString[remLength-4]) * 1000
+        if (thousandsVal > 0) {
+          acc += this.getThousands(thousandsVal)
+        }
+        if (remainder % 1000 === 0) return acc
+      }
+
+      // Hundreds (standard only)
+      if (remLength >= 3) {
+        let hundredsVal = parseInt(remString[remLength-3]) * 100
+        if (hundredsVal > 0) {
+          acc += this.getHundreds(hundredsVal)
+          if (remainder % 100 === 0) return acc
+          // དང་ only if no higher orders
+          if (!hasHigherThanHundreds) {
+            acc += 'དང་'
+          }
+        }
+      }
+
+      // Tens and ones
+      let tensOnes = remainder % 100
+      if (tensOnes > 0) {
+        if (tensOnes >= 20) {
+          acc += this.getTwentyTo99(tensOnes)
+        } else {
+          acc += this.getOneToNineteen(tensOnes)
+        }
+      }
+
+      return acc
+    }
+
+    // Hundred-thousands (bum) - standard and phrag
+    if (length >= 6) {
+      let bumValue = parseInt(numString[length-6]) * 100000
+      let remainder = numInt % 100000
+      let rest = buildRemainder(remainder, true)
+
+      return [
+        bum[bumValue] + rest,
+        bumPhrag[bumValue] + rest
+      ]
+    }
+
+    // Ten-thousands - standard, phrag, and reversed
+    if (length >= 5) {
+      let value = parseInt(numString[length-5]) * 10000
+      let remainder = numInt % 10000
+      let rest = buildRemainder(remainder, true)
+
+      return [
+        tenthousands[value] + rest,
+        tenthousandsPhrag[value] + rest,
+        tenthousandsReversed[value] + rest
+      ]
+    }
+
+    // Thousands - standard, phrag, and reversed
+    if (length >= 4) {
+      let value = parseInt(numString[length-4]) * 1000
+      let remainder = numInt % 1000
+      let rest = buildRemainder(remainder, true)
+
+      return [
+        thousands[value] + rest,
+        thousandsPhrag[value] + rest,
+        thousandsReversed[value] + rest
+      ]
+    }
+
+    // Hundreds - standard and phrag
+    if (length >= 3) {
+      let value = parseInt(numString[length-3]) * 100
+      let remainder = numInt % 100
+      let rest = ''
+      if (remainder > 0) {
+        rest = 'དང་' // Always དང་ when hundreds is highest order
+        if (remainder >= 20) {
+          rest += this.getTwentyTo99(remainder)
+        } else {
+          rest += this.getOneToNineteen(remainder)
+        }
+      }
+
+      return [
+        hundreds[value] + rest,
+        hundredsPhrag[value] + rest
+      ]
+    }
+
+    // Below 100 - only one version
+    if (numInt >= 20) {
+      return [this.getTwentyTo99(numInt)]
+    } else {
+      return [this.getOneToNineteen(numInt)]
+    }
   }
 
 }

@@ -45,10 +45,12 @@ const randomNumbers = computed(() => {
         </div>
         <div class="col-2 tibetan">
           {{ toTibetanNumber(num) }}
-        </div>``
+        </div>
         <div class="col-grow" style="text-align: right;">
           <Click2ShowSlot>
-            <div class="tibetan">{{ num2Text.tibetanNumberToText(num) }}</div>
+            <div v-for="(version, idx) in num2Text.getAllVersions(num)" :key="'version-'+i+'-'+idx" class="tibetan">
+              {{ version }}
+            </div>
           </Click2ShowSlot>
         </div>
       </div>
