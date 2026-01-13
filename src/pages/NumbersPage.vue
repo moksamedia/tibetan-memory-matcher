@@ -23,6 +23,10 @@ const randomNumbers = computed(() => {
   return getArrayOfRandomInts(min.value, max.value, num.value)
 })
 
+const formatNumber = (num) => {
+  return num.toLocaleString('en-US')
+}
+
 </script>
 
 <template>
@@ -41,7 +45,7 @@ const randomNumbers = computed(() => {
       </div>
       <div class="row" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
         <div class="col-2">
-          {{ num }}
+          {{ formatNumber(num) }}
         </div>
         <div class="col-2 tibetan">
           {{ toTibetanNumber(num) }}
