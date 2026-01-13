@@ -84,8 +84,8 @@ const thousandsReversed = {
 const tenthousands = {
   '10000': 'ཆིག་ཁྲི་',
   '20000': 'ཉིས་ཁྲི་',
-  '30000': 'སུམ་ཁྲི',
-  '40000': 'བཞི་ཁྲི',
+  '30000': 'སུམ་ཁྲི་',
+  '40000': 'བཞི་ཁྲི་',
   '50000': 'ལྔ་ཁྲི་',
   '60000': 'དྲུག་ཁྲི་',
   '70000': 'བདུན་ཁྲི་',
@@ -214,6 +214,17 @@ const dungphyurPhrag = {
 }
 
 function getOneTo99(num) {
+  let numInt = Number.isInteger(num) ? num : parseInt(num)
+
+  if (numInt < 0) {
+    throw Error("Negative numbers are not supported")
+  }
+  if (numInt > 99) {
+    throw Error("getOneTo99 only supports numbers from 0 to 99")
+  }
+  if (numInt === 0) {
+    throw Error("getOneTo99 does not support 0, use tibetanNumberToText instead")
+  }
 
   function getOneToNineteen(num) {
     if (oneToNineteen[num]) {
@@ -271,11 +282,11 @@ function getOneTo99(num) {
     }
   }
 
-  if (num >= 20 && num < 100) {
-    return getTwentyTo99(num)
+  if (numInt >= 20 && numInt < 100) {
+    return getTwentyTo99(numInt)
   }
-  else if (num < 20 && num > 0) {
-    return getOneToNineteen(num)
+  else if (numInt < 20 && numInt > 0) {
+    return getOneToNineteen(numInt)
   }
 
 }
@@ -411,11 +422,16 @@ const Number2Text = class {
   tibetanNumberToText(num) {
     console.log("tibetanNumberToText num:" + num)
     let numInt = Number.isInteger(num) ? num : parseInt(num) // ensure Integer
+
+    if (numInt < 0) {
+      throw Error("Negative numbers are not supported")
+    }
+    if (numInt > 999999999) {
+      throw Error("Number exceeds maximum supported value of 999,999,999")
+    }
+
     let numString = typeof num === 'string' ? num : num.toString()  // ensure String
     let length = numString.length
-    if (length > 9) {
-      throw Error("Number too big")
-    }
     let acc = ''
     if (length >= 9) {
       let dungphyurVal = numString[length-9] * 100000000
@@ -505,16 +521,19 @@ const Number2Text = class {
 
   getAllVersions(num) {
     let numInt = Number.isInteger(num) ? num : parseInt(num)
-    let numString = typeof num === 'string' ? num : num.toString()
-    let length = numString.length
 
+    if (numInt < 0) {
+      throw Error("Negative numbers are not supported")
+    }
+    if (numInt > 999999999) {
+      throw Error("Number exceeds maximum supported value of 999,999,999")
+    }
     if (numInt === 0) {
       return ['ཀླད་སྐོར་']
     }
 
-    if (length > 9) {
-      throw Error("Number too big")
-    }
+    let numString = typeof num === 'string' ? num : num.toString()
+    let length = numString.length
 
     // Helper to build the remainder with standard forms only
     const buildRemainder = (remainder, hasHigherThanHundreds) => {
