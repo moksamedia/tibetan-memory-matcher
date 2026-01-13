@@ -18,7 +18,7 @@ import { tibetanAudio } from 'src/lib/tibetanAudio'
 import { compareTexts } from 'src/lib/tibetanSyllable'
 
 // Mode selection
-const mode = ref('practice')
+const mode = ref('speaking')
 
 let min = ref(0)
 let max = ref(1000)
@@ -45,6 +45,9 @@ const randomNumbers = computed(() => {
 const formatNumber = (num) => {
   return num.toLocaleString('en-US')
 }
+
+// Speaking mode state
+const speakingRevealed = ref({})
 
 // Audio state
 const loadingAudio = ref(new Set())
@@ -95,6 +98,11 @@ const isLoadingAudio = (key) => {
 
 const isPlayingAudio = (key) => {
   return playingAudio.value.has(key)
+}
+
+// Toggle visibility of western numerals in speaking mode
+const toggleSpeakingReveal = (index) => {
+  speakingRevealed.value[index] = !speakingRevealed.value[index]
 }
 
 // Listening mode state
@@ -199,7 +207,7 @@ const appendNumeral = (index, numeral) => {
         indicator-color="primary"
         align="left"
       >
-        <q-tab name="practice" label="Practice" />
+        <q-tab name="speaking" label="Speaking" />
         <q-tab name="listening" label="Listening" />
       </q-tabs>
 
@@ -244,11 +252,20 @@ const appendNumeral = (index, numeral) => {
         </div>
       </div>
 
-      <!-- Practice Mode -->
-      <div v-if="mode === 'practice'" class="q-gutter-sm">
+      <!-- Speaking Mode -->
+      <div v-if="mode === 'speaking'" class="q-gutter-sm">
         <div class="row" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
           <div class="col-2">
-            {{ formatNumber(num) }}
+            <q-btn
+              flat
+              dense
+              :icon="speakingRevealed[i] ? 'visibility_off' : 'visibility'"
+              @click="toggleSpeakingReveal(i)"
+              class="reveal-btn"
+            >
+              <span v-if="speakingRevealed[i]">{{ formatNumber(num) }}</span>
+              <q-tooltip>{{ speakingRevealed[i] ? 'Hide' : 'Show' }} western numeral</q-tooltip>
+            </q-btn>
           </div>
           <div class="col-2 tibetan">
             {{ toTibetanNumber(num) }}
@@ -272,9 +289,9 @@ const appendNumeral = (index, numeral) => {
                   round
                   dense
                   size="sm"
-                  :icon="isPlayingAudio(`practice-${i}-${idx}`) ? 'volume_up' : 'volume_off'"
-                  :loading="isLoadingAudio(`practice-${i}-${idx}`)"
-                  @click="playAudio(num2Text.getAllVersions(num).strings[idx], `practice-${i}-${idx}`)"
+                  :icon="isPlayingAudio(`speaking-${i}-${idx}`) ? 'volume_up' : 'volume_off'"
+                  :loading="isLoadingAudio(`speaking-${i}-${idx}`)"
+                  @click="playAudio(num2Text.getAllVersions(num).strings[idx], `speaking-${i}-${idx}`)"
                   class="audio-btn"
                 >
                   <q-tooltip>Play audio</q-tooltip>
@@ -483,6 +500,16 @@ div.numbers-input-col input {
 
   &:hover {
     opacity: 1;
+  }
+}
+
+// Speaking mode reveal button
+.reveal-btn {
+  min-width: 100px;
+  justify-content: flex-start;
+
+  &:hover {
+    background-color: #f0f0f0;
   }
 }
 
