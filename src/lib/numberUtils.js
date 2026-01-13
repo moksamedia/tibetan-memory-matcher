@@ -141,6 +141,78 @@ const bumPhrag = {
   '900000': 'འབུམ་ཕྲག་དགུ་',
 }
 
+const saya = {
+  '1000000': 'ས་ཡ་གཅིག་',
+  '2000000': 'ས་ཡ་གཉིས་',
+  '3000000': 'ས་ཡ་གསུམ་',
+  '4000000': 'ས་ཡ་བཞི་',
+  '5000000': 'ས་ཡ་ལྔ་',
+  '6000000': 'ས་ཡ་དྲུག་',
+  '7000000': 'ས་ཡ་བདུན་',
+  '8000000': 'ས་ཡ་བརྒྱད་',
+  '9000000': 'ས་ཡ་དགུ་',
+}
+
+const sayaPhrag = {
+  '1000000': 'ས་ཡ་ཕྲག་གཅིག་',
+  '2000000': 'ས་ཡ་ཕྲག་གཉིས་',
+  '3000000': 'ས་ཡ་ཕྲག་གསུམ་',
+  '4000000': 'ས་ཡ་ཕྲག་བཞི་',
+  '5000000': 'ས་ཡ་ཕྲག་ལྔ་',
+  '6000000': 'ས་ཡ་ཕྲག་དྲུག་',
+  '7000000': 'ས་ཡ་ཕྲག་བདུན་',
+  '8000000': 'ས་ཡ་ཕྲག་བརྒྱད་',
+  '9000000': 'ས་ཡ་ཕྲག་དགུ་',
+}
+
+const byeba = {
+  '10000000': 'བྱེ་བ་གཅིག་',
+  '20000000': 'བྱེ་བ་གཉིས་',
+  '30000000': 'བྱེ་བ་གསུམ་',
+  '40000000': 'བྱེ་བ་བཞི་',
+  '50000000': 'བྱེ་བ་ལྔ་',
+  '60000000': 'བྱེ་བ་དྲུག་',
+  '70000000': 'བྱེ་བ་བདུན་',
+  '80000000': 'བྱེ་བ་བརྒྱད་',
+  '90000000': 'བྱེ་བ་དགུ་',
+}
+
+const byebaPhrag = {
+  '10000000': 'བྱེ་བ་ཕྲག་གཅིག་',
+  '20000000': 'བྱེ་བ་ཕྲག་གཉིས་',
+  '30000000': 'བྱེ་བ་ཕྲག་གསུམ་',
+  '40000000': 'བྱེ་བ་ཕྲག་བཞི་',
+  '50000000': 'བྱེ་བ་ཕྲག་ལྔ་',
+   '60000000': 'བྱེ་བ་ཕྲག་དྲུག་',
+   '70000000': 'བྱེ་བ་ཕྲག་བདུན་',
+   '80000000': 'བྱེ་བ་ཕྲག་བརྒྱད་',
+   '90000000': 'བྱེ་བ་ཕྲག་དགུ་',
+}
+
+const dungphyur = {
+  '100000000': 'དུང་ཕྱུར་གཅིག་',
+  '200000000': 'དུང་ཕྱུར་གཉིས་',
+  '300000000': 'དུང་ཕྱུར་གསུམ་',
+  '400000000': 'དུང་ཕྱུར་བཞི་',
+  '500000000': 'དུང་ཕྱུར་ལྔ་',
+  '600000000': 'དུང་ཕྱུར་དྲུག་',
+  '700000000': 'དུང་ཕྱུར་བདུན་',
+  '800000000': 'དུང་ཕྱུར་བརྒྱད་',
+  '900000000': 'དུང་ཕྱུར་དགུ་',
+}
+
+const dungphyurPhrag = {
+  '100000000': 'དུང་ཕྱུར་ཕྲག་གཅིག་',
+  '200000000': 'དུང་ཕྱུར་ཕྲག་གཉིས་',
+  '300000000': 'དུང་ཕྱུར་ཕྲག་གསུམ་',
+  '400000000': 'དུང་ཕྱུར་ཕྲག་བཞི་',
+  '500000000': 'དུང་ཕྱུར་ཕྲག་ལྔ་',
+  '600000000': 'དུང་ཕྱུར་ཕྲག་དྲུག་',
+  '700000000': 'དུང་ཕྱུར་ཕྲག་བདུན་',
+  '800000000': 'དུང་ཕྱུར་ཕྲག་བརྒྱད་',
+  '900000000': 'དུང་ཕྱུར་ཕྲག་དགུ་',
+}
+
 function getOneTo99(num) {
 
   function getOneToNineteen(num) {
@@ -309,19 +381,76 @@ const Number2Text = class {
     }
   }
 
+  getSaya(num) {
+    if (saya[num]) {
+      return saya[num]
+    }
+    else {
+      throw Error("Millions value not found")
+    }
+  }
+
+  getByeba(num) {
+    if (byeba[num]) {
+      return byeba[num]
+    }
+    else {
+      throw Error("Ten-millions value not found")
+    }
+  }
+
+  getDungphyur(num) {
+    if (dungphyur[num]) {
+      return dungphyur[num]
+    }
+    else {
+      throw Error("Hundred-millions value not found")
+    }
+  }
+
   tibetanNumberToText(num) {
     console.log("tibetanNumberToText num:" + num)
     let numInt = Number.isInteger(num) ? num : parseInt(num) // ensure Integer
     let numString = typeof num === 'string' ? num : num.toString()  // ensure String
     let length = numString.length
-    if (length > 6) {
+    if (length > 9) {
       throw Error("Number too big")
     }
     let acc = ''
+    if (length >= 9) {
+      let dungphyurVal = numString[length-9] * 100000000
+      acc += this.getDungphyur(dungphyurVal)
+      if (num % 100000000 === 0) return acc
+    }
+    if (length >= 8) {
+      let byebaVal = numString[length-8] * 10000000
+      if (byebaVal === 0) {
+        if (this.useNots) acc += 'བྱེ་བ་མེད་'
+      }
+      else {
+        acc += this.getByeba(byebaVal)
+      }
+      if (num % 10000000 === 0) return acc
+    }
+    if (length >= 7) {
+      let sayaVal = numString[length-7] * 1000000
+      if (sayaVal === 0) {
+        if (this.useNots) acc += 'ས་ཡ་མེད་'
+      }
+      else {
+        acc += this.getSaya(sayaVal)
+      }
+      if (num % 1000000 === 0) return acc
+    }
     if (length >= 6) {
       let bum = numString[length-6] * 100000
       //console.log('bum:' + bum)
-      acc += this.getBum(bum)
+      if (bum === 0) {
+        if (this.useNots) acc += 'འབུམ་མེད་'
+      }
+      else {
+        acc += this.getBum(bum)
+      }
       if (num % 100000 === 0) return acc
     }
     if (length >= 5) {
@@ -383,7 +512,7 @@ const Number2Text = class {
       return ['ཀླད་སྐོར་']
     }
 
-    if (length > 6) {
+    if (length > 9) {
       throw Error("Number too big")
     }
 
@@ -394,6 +523,24 @@ const Number2Text = class {
       let remString = remainder.toString()
       let remLength = remString.length
       let acc = ''
+
+      // Bum (standard only)
+      if (remLength >= 6) {
+        let bumVal = parseInt(remString[remLength-6]) * 100000
+        if (bumVal > 0) {
+          acc += this.getBum(bumVal)
+        }
+        if (remainder % 100000 === 0) return acc
+      }
+
+      // Ten-thousands (standard only)
+      if (remLength >= 5) {
+        let tenthousandsVal = parseInt(remString[remLength-5]) * 10000
+        if (tenthousandsVal > 0) {
+          acc += this.getTenThousands(tenthousandsVal)
+        }
+        if (remainder % 10000 === 0) return acc
+      }
 
       // Thousands (standard only)
       if (remLength >= 4) {
@@ -428,6 +575,45 @@ const Number2Text = class {
       }
 
       return acc
+    }
+
+    // Hundred-millions (dungphyur) - standard and phrag
+    if (length >= 9) {
+      let value = parseInt(numString[length-9]) * 100000000
+      let remainder = numInt % 100000000
+      let rest = buildRemainder(remainder, true)
+      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+
+      return [
+        dungphyur[value] + rest,
+        dungphyurPhrag[value] + phragRest
+      ]
+    }
+
+    // Ten-millions (byeba) - standard and phrag
+    if (length >= 8) {
+      let value = parseInt(numString[length-8]) * 10000000
+      let remainder = numInt % 10000000
+      let rest = buildRemainder(remainder, true)
+      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+
+      return [
+        byeba[value] + rest,
+        byebaPhrag[value] + phragRest
+      ]
+    }
+
+    // Millions (saya) - standard and phrag
+    if (length >= 7) {
+      let value = parseInt(numString[length-7]) * 1000000
+      let remainder = numInt % 1000000
+      let rest = buildRemainder(remainder, true)
+      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+
+      return [
+        saya[value] + rest,
+        sayaPhrag[value] + phragRest
+      ]
     }
 
     // Hundred-thousands (bum) - standard and phrag
