@@ -285,7 +285,7 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
                 outlined
                 :label="listeningAnswers[i] ? '' : 'Type your answer in Tibetan'"
                 class="tibetan-input"
-                :disable="listeningRevealed[i]"
+                :disable="!!listeningRevealed[i]"
               />
             </div>
 
@@ -295,13 +295,13 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
                 color="primary"
                 label="Submit"
                 @click="checkAnswer(i, number)"
-                :disable="listeningRevealed[i]"
+                :disable="!!listeningRevealed[i]"
               />
               <q-btn
                 color="secondary"
                 label="Show Answer"
                 @click="showAnswer(i, number)"
-                :disable="listeningRevealed[i]"
+                :disable="!!listeningRevealed[i]"
               />
             </div>
           </div>
