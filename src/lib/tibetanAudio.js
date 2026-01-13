@@ -35,6 +35,7 @@ class TibetanAudioService {
     if (!text || text.trim() === '') {
       throw new Error("Text cannot be empty");
     }
+    console.log("Generating audio for text:", text);
 
     // Check cache first
     if (this.audioCache.has(text)) {
