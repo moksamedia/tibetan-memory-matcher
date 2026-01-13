@@ -71,7 +71,7 @@ const formatNumber = (num) => {
         </div>
         <div class="col-grow" style="text-align: right;">
           <Click2ShowSlot>
-            <div v-for="(version, idx) in num2Text.getAllVersions(num)" :key="'version-'+i+'-'+idx" class="tibetan">
+            <div v-for="(version, idx) in num2Text.getAllVersions(num).strings" :key="'version-'+i+'-'+idx" class="tibetan">
               {{ version }}
             </div>
           </Click2ShowSlot>

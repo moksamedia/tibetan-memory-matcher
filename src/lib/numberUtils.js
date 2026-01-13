@@ -433,91 +433,139 @@ const Number2Text = class {
 
     let numString = typeof num === 'string' ? num : num.toString()  // ensure String
     let length = numString.length
+    let segments = []
     let acc = ''
+
     if (length >= 9) {
       let dungphyurVal = numString[length-9] * 100000000
-      acc += this.getDungphyur(dungphyurVal)
-      if (num % 100000000 === 0) return acc
+      let text = this.getDungphyur(dungphyurVal)
+      segments.push({ order: 'dungphyur', text })
+      acc += text
+      if (num % 100000000 === 0) return { string: acc, segments }
     }
     if (length >= 8) {
       let byebaVal = numString[length-8] * 10000000
       if (byebaVal === 0) {
-        if (this.useNots) acc += 'བྱེ་བ་མེད་'
+        if (this.useNots) {
+          let text = 'བྱེ་བ་མེད་'
+          segments.push({ order: 'byeba', text })
+          acc += text
+        }
       }
       else {
-        acc += this.getByeba(byebaVal)
+        let text = this.getByeba(byebaVal)
+        segments.push({ order: 'byeba', text })
+        acc += text
       }
-      if (num % 10000000 === 0) return acc
+      if (num % 10000000 === 0) return { string: acc, segments }
     }
     if (length >= 7) {
       let sayaVal = numString[length-7] * 1000000
       if (sayaVal === 0) {
-        if (this.useNots) acc += 'ས་ཡ་མེད་'
+        if (this.useNots) {
+          let text = 'ས་ཡ་མེད་'
+          segments.push({ order: 'saya', text })
+          acc += text
+        }
       }
       else {
-        acc += this.getSaya(sayaVal)
+        let text = this.getSaya(sayaVal)
+        segments.push({ order: 'saya', text })
+        acc += text
       }
-      if (num % 1000000 === 0) return acc
+      if (num % 1000000 === 0) return { string: acc, segments }
     }
     if (length >= 6) {
       let bum = numString[length-6] * 100000
-      //console.log('bum:' + bum)
       if (bum === 0) {
-        if (this.useNots) acc += 'འབུམ་མེད་'
+        if (this.useNots) {
+          let text = 'འབུམ་མེད་'
+          segments.push({ order: 'bum', text })
+          acc += text
+        }
       }
       else {
-        acc += this.getBum(bum)
+        let text = this.getBum(bum)
+        segments.push({ order: 'bum', text })
+        acc += text
       }
-      if (num % 100000 === 0) return acc
+      if (num % 100000 === 0) return { string: acc, segments }
     }
     if (length >= 5) {
       let tenthousands = numString[length-5] * 10000
-      //console.log('tenthousands:' + tenthousands)
       if (tenthousands === 0) {
-        if (this.useNots) acc += 'ཁྲི་མེད་'
+        if (this.useNots) {
+          let text = 'ཁྲི་མེད་'
+          segments.push({ order: 'tenthousands', text })
+          acc += text
+        }
       }
       else {
-        acc += this.getTenThousands(tenthousands)
+        let text = this.getTenThousands(tenthousands)
+        segments.push({ order: 'tenthousands', text })
+        acc += text
       }
-      if (num % 10000 === 0) return acc
+      if (num % 10000 === 0) return { string: acc, segments }
     }
     if (length >= 4) {
       let thousands = numString[length-4] * 1000
       console.log('thousands:' + thousands)
       if (thousands === 0) {
-        if (this.useNots) acc += 'སྟོང་མེད་'
+        if (this.useNots) {
+          let text = 'སྟོང་མེད་'
+          segments.push({ order: 'thousands', text })
+          acc += text
+        }
       }
       else {
-        acc += this.getThousands(thousands)
+        let text = this.getThousands(thousands)
+        segments.push({ order: 'thousands', text })
+        acc += text
       }
-      if (num % 1000 === 0) return acc
+      if (num % 1000 === 0) return { string: acc, segments }
     }
     if (length >= 3) {
-      let hundreds = numString[length-3] * 100 // hundreds is third from the end (i.e., length) and * 100
+      let hundreds = numString[length-3] * 100
       if (hundreds === 0) {
-        if (this.useNots) acc += 'བརྒྱ་མེད་'
+        if (this.useNots) {
+          let text = 'བརྒྱ་མེད་'
+          segments.push({ order: 'hundreds', text })
+          acc += text
+        }
       }
       else {
-        acc += this.getHundreds(hundreds)
-        if (num % 100 === 0) return acc
-        if (numInt < 1000) acc += 'དང་'
+        let text = this.getHundreds(hundreds)
+        if (num % 100 !== 0 && numInt < 1000) text += 'དང་'
+        segments.push({ order: 'hundreds', text })
+        acc += text
+        if (num % 100 === 0) return { string: acc, segments }
       }
     }
     if (length >= 2) {
-      let tens = numInt % 100 // whole number below 100, such as 34, 98, 21, ...
-      if (tens >= 20) {
-        acc += this.getTwentyTo99(tens)
-      }
-      else {
-        if (numString[length - 2] === '0' && this.useNots) acc += 'བཅུ་མེད་'
-        acc += this.getOneToNineteen(tens)
+      let tens = numInt % 100
+      if (tens > 0) {
+        let text = ''
+        if (tens >= 20) {
+          text = this.getTwentyTo99(tens)
+        }
+        else {
+          if (numString[length - 2] === '0' && this.useNots) text += 'བཅུ་མེད་'
+          text += this.getOneToNineteen(tens)
+        }
+        segments.push({ order: 'tens-ones', text })
+        acc += text
       }
     }
     if (length == 1) {
-      if (num === 0) return 'ཀླད་སྐོར་'
-      acc += this.getOneToNineteen(num)
+      if (num === 0) {
+        let text = 'ཀླད་སྐོར་'
+        return { string: text, segments: [{ order: 'zero', text }] }
+      }
+      let text = this.getOneToNineteen(num)
+      segments.push({ order: 'ones', text })
+      acc += text
     }
-    return acc
+    return { string: acc, segments }
   }
 
   getAllVersions(num) {
@@ -530,7 +578,11 @@ const Number2Text = class {
       throw Error(`Number exceeds maximum supported value of ${MAX_SUPPORTED_NUMBER.toLocaleString('en-US')}`)
     }
     if (numInt === 0) {
-      return ['ཀླད་སྐོར་']
+      let text = 'ཀླད་སྐོར་'
+      return {
+        strings: [text],
+        segments: [[{ order: 'zero', text }]]
+      }
     }
 
     let numString = typeof num === 'string' ? num : num.toString()
@@ -538,170 +590,257 @@ const Number2Text = class {
 
     // Helper to build the remainder with standard forms only
     const buildRemainder = (remainder, hasHigherThanHundreds) => {
-      if (remainder === 0) return ''
+      if (remainder === 0) return { string: '', segments: [] }
 
       let remString = remainder.toString()
       let remLength = remString.length
       let acc = ''
+      let segments = []
 
       // Bum (standard only)
       if (remLength >= 6) {
         let bumVal = parseInt(remString[remLength-6]) * 100000
         if (bumVal > 0) {
-          acc += this.getBum(bumVal)
+          let text = this.getBum(bumVal)
+          segments.push({ order: 'bum', text })
+          acc += text
         }
-        if (remainder % 100000 === 0) return acc
+        if (remainder % 100000 === 0) return { string: acc, segments }
       }
 
       // Ten-thousands (standard only)
       if (remLength >= 5) {
         let tenthousandsVal = parseInt(remString[remLength-5]) * 10000
         if (tenthousandsVal > 0) {
-          acc += this.getTenThousands(tenthousandsVal)
+          let text = this.getTenThousands(tenthousandsVal)
+          segments.push({ order: 'tenthousands', text })
+          acc += text
         }
-        if (remainder % 10000 === 0) return acc
+        if (remainder % 10000 === 0) return { string: acc, segments }
       }
 
       // Thousands (standard only)
       if (remLength >= 4) {
         let thousandsVal = parseInt(remString[remLength-4]) * 1000
         if (thousandsVal > 0) {
-          acc += this.getThousands(thousandsVal)
+          let text = this.getThousands(thousandsVal)
+          segments.push({ order: 'thousands', text })
+          acc += text
         }
-        if (remainder % 1000 === 0) return acc
+        if (remainder % 1000 === 0) return { string: acc, segments }
       }
 
       // Hundreds (standard only)
       if (remLength >= 3) {
         let hundredsVal = parseInt(remString[remLength-3]) * 100
         if (hundredsVal > 0) {
-          acc += this.getHundreds(hundredsVal)
-          if (remainder % 100 === 0) return acc
-          // དང་ only if no higher orders
-          if (!hasHigherThanHundreds) {
-            acc += 'དང་'
+          let text = this.getHundreds(hundredsVal)
+          if (remainder % 100 !== 0 && !hasHigherThanHundreds) {
+            text += 'དང་'
           }
+          segments.push({ order: 'hundreds', text })
+          acc += text
+          if (remainder % 100 === 0) return { string: acc, segments }
         }
       }
 
       // Tens and ones
       let tensOnes = remainder % 100
       if (tensOnes > 0) {
+        let text = ''
         if (tensOnes >= 20) {
-          acc += this.getTwentyTo99(tensOnes)
+          text = this.getTwentyTo99(tensOnes)
         } else {
-          acc += this.getOneToNineteen(tensOnes)
+          text = this.getOneToNineteen(tensOnes)
         }
+        segments.push({ order: 'tens-ones', text })
+        acc += text
       }
 
-      return acc
+      return { string: acc, segments }
     }
 
     // Hundred-millions (dungphyur) - standard and phrag
     if (length >= 9) {
       let value = parseInt(numString[length-9]) * 100000000
       let remainder = numInt % 100000000
-      let rest = buildRemainder(remainder, true)
-      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+      let { string: restStr, segments: restSegs } = buildRemainder(remainder, true)
 
-      return [
-        dungphyur[value] + rest,
-        dungphyurPhrag[value] + phragRest
-      ]
+      let standardText = dungphyur[value]
+      let phragText = dungphyurPhrag[value]
+      let dangText = remainder > 0 ? 'དང་' : ''
+
+      return {
+        strings: [
+          standardText + restStr,
+          phragText + dangText + restStr
+        ],
+        segments: [
+          [{ order: 'dungphyur', text: standardText }, ...restSegs],
+          [{ order: 'dungphyur', text: phragText + dangText }, ...restSegs]
+        ]
+      }
     }
 
     // Ten-millions (byeba) - standard and phrag
     if (length >= 8) {
       let value = parseInt(numString[length-8]) * 10000000
       let remainder = numInt % 10000000
-      let rest = buildRemainder(remainder, true)
-      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+      let { string: restStr, segments: restSegs } = buildRemainder(remainder, true)
 
-      return [
-        byeba[value] + rest,
-        byebaPhrag[value] + phragRest
-      ]
+      let standardText = byeba[value]
+      let phragText = byebaPhrag[value]
+      let dangText = remainder > 0 ? 'དང་' : ''
+
+      return {
+        strings: [
+          standardText + restStr,
+          phragText + dangText + restStr
+        ],
+        segments: [
+          [{ order: 'byeba', text: standardText }, ...restSegs],
+          [{ order: 'byeba', text: phragText + dangText }, ...restSegs]
+        ]
+      }
     }
 
     // Millions (saya) - standard and phrag
     if (length >= 7) {
       let value = parseInt(numString[length-7]) * 1000000
       let remainder = numInt % 1000000
-      let rest = buildRemainder(remainder, true)
-      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+      let { string: restStr, segments: restSegs } = buildRemainder(remainder, true)
 
-      return [
-        saya[value] + rest,
-        sayaPhrag[value] + phragRest
-      ]
+      let standardText = saya[value]
+      let phragText = sayaPhrag[value]
+      let dangText = remainder > 0 ? 'དང་' : ''
+
+      return {
+        strings: [
+          standardText + restStr,
+          phragText + dangText + restStr
+        ],
+        segments: [
+          [{ order: 'saya', text: standardText }, ...restSegs],
+          [{ order: 'saya', text: phragText + dangText }, ...restSegs]
+        ]
+      }
     }
 
     // Hundred-thousands (bum) - standard and phrag
     if (length >= 6) {
       let bumValue = parseInt(numString[length-6]) * 100000
       let remainder = numInt % 100000
-      let rest = buildRemainder(remainder, true)
-      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+      let { string: restStr, segments: restSegs } = buildRemainder(remainder, true)
 
-      return [
-        bum[bumValue] + rest,
-        bumPhrag[bumValue] + phragRest
-      ]
+      let standardText = bum[bumValue]
+      let phragText = bumPhrag[bumValue]
+      let dangText = remainder > 0 ? 'དང་' : ''
+
+      return {
+        strings: [
+          standardText + restStr,
+          phragText + dangText + restStr
+        ],
+        segments: [
+          [{ order: 'bum', text: standardText }, ...restSegs],
+          [{ order: 'bum', text: phragText + dangText }, ...restSegs]
+        ]
+      }
     }
 
     // Ten-thousands - standard, phrag, and reversed
     if (length >= 5) {
       let value = parseInt(numString[length-5]) * 10000
       let remainder = numInt % 10000
-      let rest = buildRemainder(remainder, true)
-      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+      let { string: restStr, segments: restSegs } = buildRemainder(remainder, true)
 
-      return [
-        tenthousands[value] + rest,
-        tenthousandsPhrag[value] + phragRest,
-        tenthousandsReversed[value] + rest
-      ]
+      let standardText = tenthousands[value]
+      let phragText = tenthousandsPhrag[value]
+      let reversedText = tenthousandsReversed[value]
+      let dangText = remainder > 0 ? 'དང་' : ''
+
+      return {
+        strings: [
+          standardText + restStr,
+          phragText + dangText + restStr,
+          reversedText + restStr
+        ],
+        segments: [
+          [{ order: 'tenthousands', text: standardText }, ...restSegs],
+          [{ order: 'tenthousands', text: phragText + dangText }, ...restSegs],
+          [{ order: 'tenthousands', text: reversedText }, ...restSegs]
+        ]
+      }
     }
 
     // Thousands - standard, phrag, and reversed
     if (length >= 4) {
       let value = parseInt(numString[length-4]) * 1000
       let remainder = numInt % 1000
-      let rest = buildRemainder(remainder, true)
-      let phragRest = (remainder > 0 ? 'དང་' : '') + rest
+      let { string: restStr, segments: restSegs } = buildRemainder(remainder, true)
 
-      return [
-        thousands[value] + rest,
-        thousandsPhrag[value] + phragRest,
-        thousandsReversed[value] + rest
-      ]
+      let standardText = thousands[value]
+      let phragText = thousandsPhrag[value]
+      let reversedText = thousandsReversed[value]
+      let dangText = remainder > 0 ? 'དང་' : ''
+
+      return {
+        strings: [
+          standardText + restStr,
+          phragText + dangText + restStr,
+          reversedText + restStr
+        ],
+        segments: [
+          [{ order: 'thousands', text: standardText }, ...restSegs],
+          [{ order: 'thousands', text: phragText + dangText }, ...restSegs],
+          [{ order: 'thousands', text: reversedText }, ...restSegs]
+        ]
+      }
     }
 
     // Hundreds - standard and phrag
     if (length >= 3) {
       let value = parseInt(numString[length-3]) * 100
       let remainder = numInt % 100
-      let rest = ''
+      let restText = ''
+      let restSegs = []
+
       if (remainder > 0) {
-        rest = 'དང་' // Always དང་ when hundreds is highest order
+        let tensOnesText = ''
         if (remainder >= 20) {
-          rest += this.getTwentyTo99(remainder)
+          tensOnesText = this.getTwentyTo99(remainder)
         } else {
-          rest += this.getOneToNineteen(remainder)
+          tensOnesText = this.getOneToNineteen(remainder)
         }
+        restText = 'དང་' + tensOnesText
+        restSegs = [{ order: 'tens-ones', text: tensOnesText }]
       }
 
-      return [
-        hundreds[value] + rest,
-        hundredsPhrag[value] + rest
-      ]
+      let standardText = hundreds[value] + restText
+      let phragText = hundredsPhrag[value] + restText
+
+      return {
+        strings: [standardText, phragText],
+        segments: [
+          [{ order: 'hundreds', text: hundreds[value] + (remainder > 0 ? 'དང་' : '') }, ...restSegs],
+          [{ order: 'hundreds', text: hundredsPhrag[value] + (remainder > 0 ? 'དང་' : '') }, ...restSegs]
+        ]
+      }
     }
 
     // Below 100 - only one version
     if (numInt >= 20) {
-      return [this.getTwentyTo99(numInt)]
+      let text = this.getTwentyTo99(numInt)
+      return {
+        strings: [text],
+        segments: [[{ order: 'tens-ones', text }]]
+      }
     } else {
-      return [this.getOneToNineteen(numInt)]
+      let text = this.getOneToNineteen(numInt)
+      return {
+        strings: [text],
+        segments: [[{ order: 'ones', text }]]
+      }
     }
   }
 
