@@ -254,8 +254,8 @@ const appendNumeral = (index, numeral) => {
 
       <!-- Speaking Mode -->
       <div v-if="mode === 'speaking'" class="q-gutter-sm">
-        <div class="row" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
-          <div class="col-2">
+        <div class="row items-center" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
+          <div class="col-2 numeral-column">
             <q-btn
               v-if="!speakingRevealed[i]"
               flat
@@ -266,9 +266,9 @@ const appendNumeral = (index, numeral) => {
             >
               <q-tooltip>Show western numeral</q-tooltip>
             </q-btn>
-            <span v-else>{{ formatNumber(num) }}</span>
+            <span v-else class="western-numeral">{{ formatNumber(num) }}</span>
           </div>
-          <div class="col-2 tibetan">
+          <div class="col-2 tibetan numeral-column">
             {{ toTibetanNumber(num) }}
           </div>
           <div class="col-grow" style="text-align: right;">
@@ -504,7 +504,18 @@ div.numbers-input-col input {
   }
 }
 
-// Speaking mode reveal button
+// Speaking mode styling
+.numeral-column {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.western-numeral {
+  font-size: 24px;
+  font-weight: 500;
+}
+
 .reveal-btn {
   justify-content: flex-start;
 
