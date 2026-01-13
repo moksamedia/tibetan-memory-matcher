@@ -85,7 +85,7 @@ const formatNumber = (num) => {
   </q-page>
 </template>
 
-<style type="text/scss">
+<style lang="scss" scoped>
 div.numbers-input-col input {
   display: inline-block;
   width: auto;
