@@ -13,6 +13,9 @@ import {
 } from 'src/lib/numberUtils'
 import { tibetanAudio } from 'src/lib/tibetanAudio'
 
+// Mode selection
+const mode = ref('practice')
+
 let min = ref(0)
 let max = ref(1000)
 let num = ref(10)
@@ -75,13 +78,63 @@ const isPlayingAudio = (key) => {
   return playingAudio.value.has(key)
 }
 
+// Listening mode state
+const listeningAnswers = ref({})
+const listeningRevealed = ref({})
+
+const checkAnswer = (index, number) => {
+  const userAnswer = listeningAnswers.value[index]?.trim()
+  if (!userAnswer) {
+    Notify.create({
+      type: 'warning',
+      message: 'Please enter an answer',
+      position: 'top'
+    })
+    return
+  }
+
+  const validAnswers = num2Text.getAllVersions(number).strings
+  const isCorrect = validAnswers.includes(userAnswer)
+
+  listeningRevealed.value[index] = {
+    correct: isCorrect,
+    userAnswer: userAnswer,
+    validAnswers: validAnswers
+  }
+}
+
+const showAnswer = (index, number) => {
+  const validAnswers = num2Text.getAllVersions(number).strings
+  listeningRevealed.value[index] = {
+    correct: null, // null means we're just showing, not checking
+    userAnswer: listeningAnswers.value[index]?.trim() || '',
+    validAnswers: validAnswers
+  }
+}
+
 </script>
 
 <template>
   <q-page class="flex flex-center">
-    <div class="q-pa-sm grid-container q-gutter-sm">
-      <div class="row">
-        <div class="col-2 numbers-input-col">
+    <div class="q-pa-md full-width" style="max-width: 1200px;">
+      <!-- Mode Tabs -->
+      <q-tabs
+        v-model="mode"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="left"
+      >
+        <q-tab name="practice" label="Practice" />
+        <q-tab name="listening" label="Listening" />
+      </q-tabs>
+
+      <q-separator class="q-mb-md" />
+
+      <!-- Controls (shared between modes) -->
+      <div class="row q-gutter-sm q-mb-md">
+        <div class="col-auto">
           <q-input
             outlined
             v-model="min"
@@ -89,61 +142,156 @@ const isPlayingAudio = (key) => {
             type="number"
             min="0"
             :max="MAX_SUPPORTED_NUMBER"
+            style="width: 120px"
             :rules="[
               val => val >= 0 || 'Min cannot be negative',
               val => val <= MAX_SUPPORTED_NUMBER || `Min cannot exceed ${MAX_SUPPORTED_NUMBER.toLocaleString('en-US')}`
             ]"
           />
         </div>
-        <div class="col-2 numbers-input-col">
+        <div class="col-auto">
           <q-input
             outlined
             v-model="max"
             label="Max"
             type="number"
             :max="MAX_SUPPORTED_NUMBER"
+            style="width: 120px"
             :rules="[val => val <= MAX_SUPPORTED_NUMBER || `Max cannot exceed ${MAX_SUPPORTED_NUMBER.toLocaleString('en-US')}`]"
           />
         </div>
-        <div class="col-2 numbers-input-col">
-          <q-input outlined v-model="num" label="Num" type="number" />
+        <div class="col-auto">
+          <q-input outlined v-model="num" label="Num" type="number" style="width: 100px" />
         </div>
       </div>
-      <div class="row" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
-        <div class="col-2">
-          {{ formatNumber(num) }}
+
+      <!-- Practice Mode -->
+      <div v-if="mode === 'practice'" class="q-gutter-sm">
+        <div class="row" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
+          <div class="col-2">
+            {{ formatNumber(num) }}
+          </div>
+          <div class="col-2 tibetan">
+            {{ toTibetanNumber(num) }}
+          </div>
+          <div class="col-grow" style="text-align: right;">
+            <Click2ShowSlot>
+              <div
+                v-for="(segmentGroup, idx) in num2Text.getAllVersions(num).segments"
+                :key="'version-'+i+'-'+idx"
+                class="tibetan-version-row"
+              >
+                <span class="tibetan">
+                  <span
+                    v-for="(segment, segIdx) in segmentGroup"
+                    :key="'seg-'+i+'-'+idx+'-'+segIdx"
+                    :class="'order-' + segment.order"
+                  >{{ segment.text }}</span>
+                </span>
+                <q-btn
+                  flat
+                  round
+                  dense
+                  size="sm"
+                  :icon="isPlayingAudio(`practice-${i}-${idx}`) ? 'volume_up' : 'volume_off'"
+                  :loading="isLoadingAudio(`practice-${i}-${idx}`)"
+                  @click="playAudio(num2Text.getAllVersions(num).strings[idx], `practice-${i}-${idx}`)"
+                  class="audio-btn"
+                >
+                  <q-tooltip>Play audio</q-tooltip>
+                </q-btn>
+              </div>
+            </Click2ShowSlot>
+          </div>
         </div>
-        <div class="col-2 tibetan">
-          {{ toTibetanNumber(num) }}
-        </div>
-        <div class="col-grow" style="text-align: right;">
-          <Click2ShowSlot>
-            <div
-              v-for="(segmentGroup, idx) in num2Text.getAllVersions(num).segments"
-              :key="'version-'+i+'-'+idx"
-              class="tibetan-version-row"
-            >
-              <span class="tibetan">
-                <span
-                  v-for="(segment, segIdx) in segmentGroup"
-                  :key="'seg-'+i+'-'+idx+'-'+segIdx"
-                  :class="'order-' + segment.order"
-                >{{ segment.text }}</span>
-              </span>
+      </div>
+
+      <!-- Listening Mode -->
+      <div v-if="mode === 'listening'" class="q-gutter-md">
+        <div
+          v-for="(number, i) in randomNumbers"
+          :key="'listen-'+i"
+          class="listening-item q-pa-md"
+        >
+          <div class="row items-center q-gutter-md">
+            <!-- Play Button -->
+            <div class="col-auto">
               <q-btn
-                flat
                 round
-                dense
-                size="sm"
-                :icon="isPlayingAudio(`${i}-${idx}`) ? 'volume_up' : 'volume_off'"
-                :loading="isLoadingAudio(`${i}-${idx}`)"
-                @click="playAudio(num2Text.getAllVersions(num).strings[idx], `${i}-${idx}`)"
-                class="audio-btn"
+                color="primary"
+                :icon="isPlayingAudio(`listen-${i}`) ? 'volume_up' : 'play_arrow'"
+                :loading="isLoadingAudio(`listen-${i}`)"
+                @click="playAudio(num2Text.getAllVersions(number).strings[0], `listen-${i}`)"
+                size="md"
               >
                 <q-tooltip>Play audio</q-tooltip>
               </q-btn>
             </div>
-          </Click2ShowSlot>
+
+            <!-- Answer Input -->
+            <div class="col">
+              <q-input
+                v-model="listeningAnswers[i]"
+                outlined
+                label="Type your answer in Tibetan"
+                class="tibetan-input"
+                :disable="listeningRevealed[i]"
+              />
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="col-auto q-gutter-sm">
+              <q-btn
+                color="primary"
+                label="Submit"
+                @click="checkAnswer(i, number)"
+                :disable="listeningRevealed[i]"
+              />
+              <q-btn
+                color="secondary"
+                label="Show Answer"
+                @click="showAnswer(i, number)"
+                :disable="listeningRevealed[i]"
+              />
+            </div>
+          </div>
+
+          <!-- Feedback -->
+          <div v-if="listeningRevealed[i]" class="q-mt-md">
+            <!-- Result message -->
+            <div v-if="listeningRevealed[i].correct !== null" class="q-mb-sm">
+              <q-badge
+                :color="listeningRevealed[i].correct ? 'positive' : 'negative'"
+                :label="listeningRevealed[i].correct ? 'Correct!' : 'Incorrect'"
+                class="q-pa-sm"
+              />
+            </div>
+
+            <!-- Show the actual number -->
+            <div class="q-mb-sm">
+              <strong>Number:</strong> {{ formatNumber(number) }} ({{ toTibetanNumber(number) }})
+            </div>
+
+            <!-- Your answer (if submitted) -->
+            <div v-if="listeningRevealed[i].userAnswer" class="q-mb-sm">
+              <strong>Your answer:</strong>
+              <span class="tibetan">{{ listeningRevealed[i].userAnswer }}</span>
+            </div>
+
+            <!-- Valid answers -->
+            <div>
+              <strong>Valid answers:</strong>
+              <div class="q-mt-xs q-gutter-xs">
+                <div
+                  v-for="(answer, idx) in listeningRevealed[i].validAnswers"
+                  :key="'answer-'+i+'-'+idx"
+                  class="tibetan"
+                >
+                  {{ answer }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -212,6 +360,21 @@ div.numbers-input-col input {
 
   &:hover {
     opacity: 1;
+  }
+}
+
+// Listening mode styling
+.listening-item {
+  background: #f5f5f5;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.tibetan-input {
+  font-size: 160%;
+
+  :deep(input) {
+    font-size: 160%;
   }
 }
 </style>
