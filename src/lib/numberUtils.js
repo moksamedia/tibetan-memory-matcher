@@ -28,7 +28,7 @@ const hundreds = {
   '300': 'སུམ་བརྒྱ་',
   '400': 'བཞི་བརྒྱ་',
   '500': 'ལྔ་བརྒྱ་',
-  '600': 'དྲུག་བརྒྱུ་',
+  '600': 'དྲུག་བརྒྱ་',
   '700': 'བདུན་བརྒྱ་',
   '800': 'བརྒྱད་བརྒྱ་',
   '900': 'དགུ་བརྒྱ་'
@@ -258,7 +258,7 @@ function getOneTo99(num) {
       return num === 20 ? 'ཉི་ཤུ་': 'ཉི་ཤུ་རྩ་' + lastDigit
     }
     else if (num >= 30 && num < 40) {
-      return num === 30 ? 'སུམ་བུ་' : 'སུམ་ཅུ་སོ་' + lastDigit
+      return num === 30 ? 'སུམ་ཅུ་' : 'སུམ་ཅུ་སོ་' + lastDigit
     }
     else if (num >= 40 && num < 50) {
       return num === 40 ? 'བཞི་བཅུ་' : 'བཞི་བཅུ་ཞེ་' + lastDigit
@@ -894,11 +894,58 @@ function toTibetanNumber(number) {
   return acc
 }
 
+// Reverse mapping: Tibetan numerals to western digits
+const tibNumsReverse = new Map([
+  ['༡', '1'],
+  ['༢', '2'],
+  ['༣', '3'],
+  ['༤', '4'],
+  ['༥', '5'],
+  ['༦', '6'],
+  ['༧', '7'],
+  ['༨', '8'],
+  ['༩', '9'],
+  ['༠', '0']
+])
+
+function fromTibetanNumber(tibetanNumber) {
+  let acc = ''
+  for (let i = 0; i < tibetanNumber.length; i++) {
+    let char = tibetanNumber.charAt(i)
+    if (tibNumsReverse.has(char)) {
+      acc += tibNumsReverse.get(char)
+    } else {
+      // If we encounter a non-Tibetan numeral, return null
+      return null
+    }
+  }
+  return acc
+}
+
+// Check if a string contains only Tibetan numerals
+function isTibetanNumeral(str) {
+  if (!str || str.length === 0) return false
+  for (let i = 0; i < str.length; i++) {
+    if (!tibNumsReverse.has(str.charAt(i))) {
+      return false
+    }
+  }
+  return true
+}
+
+// Check if a string contains only western digits
+function isWesternNumeral(str) {
+  return /^\d+$/.test(str)
+}
+
 export {
   MAX_SUPPORTED_NUMBER,
   getRandomInt,
   getArrayOfRandomInts,
   toTibetanNumber,
+  fromTibetanNumber,
+  isTibetanNumeral,
+  isWesternNumeral,
   getOneTo99,
   Number2Text
 }

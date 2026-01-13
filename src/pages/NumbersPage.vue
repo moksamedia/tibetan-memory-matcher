@@ -9,6 +9,9 @@ import {
   getRandomInt,
   getArrayOfRandomInts,
   toTibetanNumber,
+  fromTibetanNumber,
+  isTibetanNumeral,
+  isWesternNumeral,
   Number2Text
 } from 'src/lib/numberUtils'
 import { tibetanAudio } from 'src/lib/tibetanAudio'
@@ -52,7 +55,7 @@ const playAudio = async (text, key) => {
       // Add delay to ensure audio fully completes before cleanup
       setTimeout(() => {
         playingAudio.value.delete(key)
-      }, 300)
+      }, 1000)
     }
 
     audio.onerror = () => {
@@ -98,12 +101,33 @@ const checkAnswer = (index, number) => {
   }
 
   const validAnswers = num2Text.getAllVersions(number).strings
-  const isCorrect = validAnswers.includes(userAnswer)
+  let isCorrect = false
+
+  // Check if answer is a valid long-form text
+  if (validAnswers.includes(userAnswer)) {
+    isCorrect = true
+  }
+  // Check if answer is western numerals
+  else if (isWesternNumeral(userAnswer)) {
+    const userNum = parseInt(userAnswer, 10)
+    isCorrect = userNum === number
+  }
+  // Check if answer is Tibetan numerals
+  else if (isTibetanNumeral(userAnswer)) {
+    const westernNum = fromTibetanNumber(userAnswer)
+    if (westernNum !== null) {
+      const userNum = parseInt(westernNum, 10)
+      isCorrect = userNum === number
+    }
+  }
 
   listeningRevealed.value[index] = {
     correct: isCorrect,
     userAnswer: userAnswer,
-    validAnswers: validAnswers
+    validAnswers: validAnswers,
+    answerType: isWesternNumeral(userAnswer) ? 'western-numeral' :
+                isTibetanNumeral(userAnswer) ? 'tibetan-numeral' :
+                'long-form'
   }
 }
 
@@ -301,16 +325,27 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
             <!-- Your answer (if submitted) -->
             <div v-if="listeningRevealed[i].userAnswer" class="q-mb-sm">
               <strong>Your answer:</strong>
+              <!-- Correct answer: show plain text -->
               <span v-if="listeningRevealed[i].correct === true" class="tibetan">
                 {{ listeningRevealed[i].userAnswer }}
               </span>
-              <span v-else-if="listeningRevealed[i].correct === false" class="tibetan">
-                <span
-                  v-for="(charData, cIdx) in getCharacterComparison(listeningRevealed[i].userAnswer, listeningRevealed[i].validAnswers)"
-                  :key="'char-'+i+'-'+cIdx"
-                  :class="charData.correct ? 'char-correct' : 'char-incorrect'"
-                >{{ charData.char }}</span>
+              <!-- Incorrect answer: show with highlighting only for long-form text -->
+              <span v-else-if="listeningRevealed[i].correct === false">
+                <!-- If it's a numeral (western or Tibetan), just show it plain -->
+                <span v-if="listeningRevealed[i].answerType !== 'long-form'" class="tibetan">
+                  {{ listeningRevealed[i].userAnswer }}
+                  <span class="text-grey-7"> (numeric answer - see valid long-form below)</span>
+                </span>
+                <!-- If it's long-form text, show character highlighting -->
+                <span v-else class="tibetan">
+                  <span
+                    v-for="(charData, cIdx) in getCharacterComparison(listeningRevealed[i].userAnswer, listeningRevealed[i].validAnswers)"
+                    :key="'char-'+i+'-'+cIdx"
+                    :class="charData.correct ? 'char-correct' : 'char-incorrect'"
+                  >{{ charData.char }}</span>
+                </span>
               </span>
+              <!-- Just showing answer (not submitted) -->
               <span v-else class="tibetan">
                 {{ listeningRevealed[i].userAnswer }}
               </span>
@@ -318,7 +353,7 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
 
             <!-- Valid answers -->
             <div>
-              <strong>Valid answers:</strong>
+              <strong>Valid long-form answers:</strong>
               <div class="q-mt-xs q-gutter-xs">
                 <div
                   v-for="(answer, idx) in listeningRevealed[i].validAnswers"
@@ -327,6 +362,9 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
                 >
                   {{ answer }}
                 </div>
+              </div>
+              <div class="q-mt-sm text-grey-7">
+                Also accepted: {{ number }} or {{ toTibetanNumber(number) }}
               </div>
             </div>
           </div>
