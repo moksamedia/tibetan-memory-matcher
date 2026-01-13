@@ -112,6 +112,43 @@ const showAnswer = (index, number) => {
   }
 }
 
+// Helper function to compare user answer with closest valid answer
+const getCharacterComparison = (userAnswer, validAnswers) => {
+  if (!userAnswer || !validAnswers || validAnswers.length === 0) {
+    return []
+  }
+
+  // Find the closest matching valid answer
+  let closestAnswer = validAnswers[0]
+  let minDistance = Math.abs(userAnswer.length - validAnswers[0].length)
+
+  for (const validAnswer of validAnswers) {
+    const distance = Math.abs(userAnswer.length - validAnswer.length)
+    if (distance < minDistance) {
+      minDistance = distance
+      closestAnswer = validAnswer
+    }
+  }
+
+  // Compare character by character
+  const comparison = []
+  const maxLength = Math.max(userAnswer.length, closestAnswer.length)
+
+  for (let i = 0; i < maxLength; i++) {
+    const userChar = userAnswer[i] || ''
+    const validChar = closestAnswer[i] || ''
+
+    if (i < userAnswer.length) {
+      comparison.push({
+        char: userChar,
+        correct: userChar === validChar
+      })
+    }
+  }
+
+  return comparison
+}
+
 </script>
 
 <template>
@@ -275,7 +312,19 @@ const showAnswer = (index, number) => {
             <!-- Your answer (if submitted) -->
             <div v-if="listeningRevealed[i].userAnswer" class="q-mb-sm">
               <strong>Your answer:</strong>
-              <span class="tibetan">{{ listeningRevealed[i].userAnswer }}</span>
+              <span v-if="listeningRevealed[i].correct === true" class="tibetan">
+                {{ listeningRevealed[i].userAnswer }}
+              </span>
+              <span v-else-if="listeningRevealed[i].correct === false" class="tibetan">
+                <span
+                  v-for="(charData, cIdx) in getCharacterComparison(listeningRevealed[i].userAnswer, listeningRevealed[i].validAnswers)"
+                  :key="'char-'+i+'-'+cIdx"
+                  :class="charData.correct ? 'char-correct' : 'char-incorrect'"
+                >{{ charData.char }}</span>
+              </span>
+              <span v-else class="tibetan">
+                {{ listeningRevealed[i].userAnswer }}
+              </span>
             </div>
 
             <!-- Valid answers -->
@@ -376,5 +425,18 @@ div.numbers-input-col input {
   :deep(input) {
     font-size: 160%;
   }
+}
+
+// Character highlighting for incorrect answers
+.char-correct {
+  background-color: #c8e6c9; // Light green
+  color: #2e7d32; // Dark green
+  padding: 2px 0;
+}
+
+.char-incorrect {
+  background-color: #ffcdd2; // Light red
+  color: #c62828; // Dark red
+  padding: 2px 0;
 }
 </style>
