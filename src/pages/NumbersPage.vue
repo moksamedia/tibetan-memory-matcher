@@ -46,7 +46,7 @@ const playAudio = async (text, key) => {
   loadingAudio.value.add(key)
 
   try {
-    const audio = await tibetanAudio.playAudio(text)
+    const audio = await tibetanAudio.playAudio("་"+text)
 
     loadingAudio.value.delete(key)
     playingAudio.value.add(key)
@@ -160,6 +160,17 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
 
   // Use syllable-based comparison for more accurate feedback
   return compareTexts(userAnswer, closestAnswer)
+}
+
+// Tibetan numerals for input buttons
+const tibetanNumerals = ['༠', '༡', '༢', '༣', '༤', '༥', '༦', '༧', '༨', '༩']
+
+// Append a numeral to the answer input
+const appendNumeral = (index, numeral) => {
+  if (!listeningAnswers.value[index]) {
+    listeningAnswers.value[index] = ''
+  }
+  listeningAnswers.value[index] += numeral
 }
 
 </script>
@@ -303,6 +314,24 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
                 @click="showAnswer(i, number)"
                 :disable="!!listeningRevealed[i]"
               />
+            </div>
+          </div>
+
+          <!-- Tibetan Numeral Input Buttons -->
+          <div v-if="!listeningRevealed[i]" class="q-mt-sm q-ml-md">
+            <div class="text-caption text-grey-7 q-mb-xs">Tibetan numerals:</div>
+            <div class="numeral-buttons">
+              <q-btn
+                v-for="(numeral, idx) in tibetanNumerals"
+                :key="'numeral-'+i+'-'+idx"
+                flat
+                dense
+                size="md"
+                class="tibetan-numeral-btn"
+                @click="appendNumeral(i, numeral)"
+              >
+                {{ numeral }}
+              </q-btn>
             </div>
           </div>
 
@@ -465,5 +494,24 @@ div.numbers-input-col input {
   background-color: #ffcdd2; // Light red
   color: #c62828; // Dark red
   padding: 2px 0;
+}
+
+// Numeral input buttons
+.numeral-buttons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tibetan-numeral-btn {
+  font-size: 20px;
+  min-width: 40px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
 }
 </style>
