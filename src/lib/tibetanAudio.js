@@ -7,6 +7,7 @@ class TibetanAudioService {
     this.connecting = false;
     this.connectionPromise = null;
     this.audioContext = null;
+    this.saveLocally = false; // Set to true to save audio files locally
   }
 
   getAudioContext() {
@@ -16,7 +17,7 @@ class TibetanAudioService {
     return this.audioContext;
   }
 
-  async padAudioWithSilence(audioUrl, paddingMs = 300) {
+  async padAudioWithSilence(audioUrl, paddingMs = 300, text = '') {
     try {
       // Fetch the audio file
       const response = await fetch(audioUrl);
@@ -50,11 +51,46 @@ class TibetanAudioService {
       const blob = new Blob([wav], { type: 'audio/wav' });
       const paddedUrl = URL.createObjectURL(blob);
 
+      // Save locally if enabled
+      if (this.saveLocally && text) {
+        this.saveAudioToFile(blob, text);
+      }
+
       return paddedUrl;
     } catch (error) {
       console.error("Error padding audio:", error);
       // If padding fails, return original URL
       return audioUrl;
+    }
+  }
+
+  // Save audio blob to local file
+  saveAudioToFile(blob, text) {
+    try {
+      // Create a safe filename from the Tibetan text
+      // Replace non-alphanumeric Tibetan characters with underscore
+      const safeText = text.replace(/[་\s]+/g, '_').replace(/^་+|་+$/g, '');
+      const timestamp = new Date().getTime();
+      const filename = `tibetan_audio_${safeText}_${timestamp}.wav`;
+
+      // Create a temporary anchor element and trigger download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+
+      console.log(`Audio saved locally as: ${filename}`);
+    } catch (error) {
+      console.error("Error saving audio file:", error);
     }
   }
 
@@ -167,7 +203,7 @@ class TibetanAudioService {
       const originalUrl = audioData.url;
 
       // Pad audio with 300ms of silence at the end
-      const paddedUrl = await this.padAudioWithSilence(originalUrl, 300);
+      const paddedUrl = await this.padAudioWithSilence(originalUrl, 300, text);
 
       // Cache the result with padded URL
       const audioResult = {
@@ -214,6 +250,23 @@ class TibetanAudioService {
 
   getCacheSize() {
     return this.audioCache.size;
+  }
+
+  // Enable local file saving
+  enableLocalSaving() {
+    this.saveLocally = true;
+    console.log("Local audio file saving enabled");
+  }
+
+  // Disable local file saving
+  disableLocalSaving() {
+    this.saveLocally = false;
+    console.log("Local audio file saving disabled");
+  }
+
+  // Check if local saving is enabled
+  isLocalSavingEnabled() {
+    return this.saveLocally;
   }
 }
 

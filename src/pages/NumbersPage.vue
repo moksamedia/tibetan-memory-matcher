@@ -1,5 +1,5 @@
 <script setup>
-import { defineComponent, toRaw, computed, ref } from 'vue'
+import { defineComponent, toRaw, computed, ref, watch } from 'vue'
 import Click2Show from 'src/components/Click2Show.vue'
 import Click2ShowSlot from 'src/components/Click2ShowSlot.vue'
 import { storeToRefs } from 'pinia'
@@ -23,6 +23,18 @@ const mode = ref('practice')
 let min = ref(0)
 let max = ref(1000)
 let num = ref(10)
+
+// Local saving toggle
+const saveAudioLocally = ref(false)
+
+// Watch for changes to saveAudioLocally and update the service
+watch(saveAudioLocally, (newValue) => {
+  if (newValue) {
+    tibetanAudio.enableLocalSaving()
+  } else {
+    tibetanAudio.disableLocalSaving()
+  }
+})
 
 const num2Text = new Number2Text(false,false,false)
 
@@ -224,6 +236,12 @@ const appendNumeral = (index, numeral) => {
         <div class="col-auto">
           <q-input outlined v-model="num" label="Num" type="number" style="width: 100px" />
         </div>
+        <div class="col-auto flex items-center">
+          <q-checkbox
+            v-model="saveAudioLocally"
+            label="Save audio files locally"
+          />
+        </div>
       </div>
 
       <!-- Practice Mode -->
@@ -326,7 +344,7 @@ const appendNumeral = (index, numeral) => {
                 :key="'numeral-'+i+'-'+idx"
                 flat
                 dense
-                size="md"
+                size="xl"
                 class="tibetan-numeral-btn"
                 @click="appendNumeral(i, numeral)"
               >
