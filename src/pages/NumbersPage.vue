@@ -12,6 +12,7 @@ import {
   Number2Text
 } from 'src/lib/numberUtils'
 import { tibetanAudio } from 'src/lib/tibetanAudio'
+import { compareTexts } from 'src/lib/tibetanSyllable'
 
 // Mode selection
 const mode = ref('practice')
@@ -115,13 +116,13 @@ const showAnswer = (index, number) => {
   }
 }
 
-// Helper function to compare user answer with closest valid answer
+// Helper function to compare user answer with closest valid answer using syllable analysis
 const getCharacterComparison = (userAnswer, validAnswers) => {
   if (!userAnswer || !validAnswers || validAnswers.length === 0) {
     return []
   }
 
-  // Find the closest matching valid answer
+  // Find the closest matching valid answer (by length)
   let closestAnswer = validAnswers[0]
   let minDistance = Math.abs(userAnswer.length - validAnswers[0].length)
 
@@ -133,23 +134,8 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
     }
   }
 
-  // Compare character by character
-  const comparison = []
-  const maxLength = Math.max(userAnswer.length, closestAnswer.length)
-
-  for (let i = 0; i < maxLength; i++) {
-    const userChar = userAnswer[i] || ''
-    const validChar = closestAnswer[i] || ''
-
-    if (i < userAnswer.length) {
-      comparison.push({
-        char: userChar,
-        correct: userChar === validChar
-      })
-    }
-  }
-
-  return comparison
+  // Use syllable-based comparison for more accurate feedback
+  return compareTexts(userAnswer, closestAnswer)
 }
 
 </script>
