@@ -11,6 +11,7 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@gradio/client": "^2.0.2",
     "@quasar/extras": "^1.16.4",
     "moment": "^2.29.4",
     "pinia": "^2.0.11",
