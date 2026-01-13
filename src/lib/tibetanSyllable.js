@@ -9,6 +9,9 @@ const TIBETAN_RANGES = {
   marks: [0x0F35, 0x0F39] // Additional marks
 }
 
+// Specific Tibetan vowel signs for explicit detection
+const VOWEL_SIGNS = ['ི', 'ུ', 'ེ', 'ོ', 'ཱ', 'ཱི', 'ཱུ']
+
 // Tibetan prefixes
 const PREFIXES = ['ག', 'ད', 'བ', 'མ', 'འ']
 
@@ -31,7 +34,9 @@ function parseSyllable(syllable) {
     return null
   }
 
-  const chars = Array.from(syllable)
+  // Normalize Unicode to ensure consistent representation
+  const normalized = syllable.normalize('NFC')
+  const chars = Array.from(normalized)
   const components = {
     prefix: '',
     superscript: '',
@@ -86,8 +91,11 @@ function parseSyllable(syllable) {
   // Vowel marks (can be multiple)
   while (idx < chars.length) {
     const code = chars[idx].charCodeAt(0)
-    if (code >= TIBETAN_RANGES.vowels[0] && code <= TIBETAN_RANGES.vowels[1]) {
-      components.vowel += chars[idx]
+    const char = chars[idx]
+    // Check both Unicode range and explicit vowel list
+    if ((code >= TIBETAN_RANGES.vowels[0] && code <= TIBETAN_RANGES.vowels[1]) ||
+        VOWEL_SIGNS.includes(char)) {
+      components.vowel += char
       idx++
     } else {
       break
@@ -117,8 +125,11 @@ function parseSyllable(syllable) {
 export function parseText(text) {
   if (!text) return []
 
+  // Normalize Unicode to ensure consistent representation
+  const normalized = text.normalize('NFC')
+
   // Split by tsheg (་) and filter empty strings
-  const syllables = text.split('་').filter(s => s.length > 0)
+  const syllables = normalized.split('་').filter(s => s.length > 0)
 
   return syllables.map((syllableText, index) => {
     return {
@@ -159,6 +170,11 @@ export function compareTexts(userText, correctText) {
   const userSyllables = parseText(userText)
   const correctSyllables = parseText(correctText)
 
+  // Debug logging to verify parsing
+  console.log('Comparing:', { userText, correctText })
+  console.log('User syllables:', userSyllables)
+  console.log('Correct syllables:', correctSyllables)
+
   const result = []
 
   const maxLength = Math.max(userSyllables.length, correctSyllables.length)
@@ -196,72 +212,67 @@ export function compareTexts(userText, correctText) {
     const userComp = userSyl.components
     const correctComp = correctSyl.components
 
-    // Add each component with its correctness
+    // Group prefix separately
     if (userComp.prefix || correctComp.prefix) {
       result.push({
         char: userComp.prefix || correctComp.prefix,
         correct: comparison.prefix,
-        type: 'component'
+        type: 'prefix'
       })
     }
 
+    // Group main consonant + superscript + subjoined + vowel together for proper rendering
+    // This is necessary because vowel marks are combining characters
+    let mainStack = ''
+    let mainStackCorrect = true
+
+    // Superscript
     if (userComp.superscript || correctComp.superscript) {
-      result.push({
-        char: userComp.superscript || correctComp.superscript,
-        correct: comparison.superscript,
-        type: 'component'
-      })
+      mainStack += userComp.superscript || correctComp.superscript
+      mainStackCorrect = mainStackCorrect && comparison.superscript
     }
 
+    // Main consonant
     if (userComp.main || correctComp.main) {
+      mainStack += userComp.main || correctComp.main
+      mainStackCorrect = mainStackCorrect && comparison.main
+    }
+
+    // Subjoined
+    if (userComp.subjoined || correctComp.subjoined) {
+      mainStack += userComp.subjoined || correctComp.subjoined
+      mainStackCorrect = mainStackCorrect && comparison.subjoined
+    }
+
+    // Vowel (combining character - must stay with consonant)
+    if (userComp.vowel || correctComp.vowel) {
+      mainStack += userComp.vowel || correctComp.vowel
+      mainStackCorrect = mainStackCorrect && comparison.vowel
+    }
+
+    if (mainStack) {
       result.push({
-        char: userComp.main || correctComp.main,
-        correct: comparison.main,
-        type: 'component'
+        char: mainStack,
+        correct: mainStackCorrect,
+        type: 'stack'
       })
     }
 
-    if (userComp.subjoined || correctComp.subjoined) {
-      // Handle multiple subjoined characters
-      const maxSub = Math.max(userComp.subjoined.length, correctComp.subjoined.length)
-      for (let j = 0; j < maxSub; j++) {
-        const userSubChar = userComp.subjoined[j] || ''
-        const correctSubChar = correctComp.subjoined[j] || ''
-        result.push({
-          char: userSubChar || correctSubChar,
-          correct: userSubChar === correctSubChar,
-          type: 'component'
-        })
-      }
-    }
-
-    if (userComp.vowel || correctComp.vowel) {
-      // Handle multiple vowel marks
-      const maxVow = Math.max(userComp.vowel.length, correctComp.vowel.length)
-      for (let j = 0; j < maxVow; j++) {
-        const userVowChar = userComp.vowel[j] || ''
-        const correctVowChar = correctComp.vowel[j] || ''
-        result.push({
-          char: userVowChar || correctVowChar,
-          correct: userVowChar === correctVowChar,
-          type: 'component'
-        })
-      }
-    }
-
+    // Suffix separately
     if (userComp.suffix || correctComp.suffix) {
       result.push({
         char: userComp.suffix || correctComp.suffix,
         correct: comparison.suffix,
-        type: 'component'
+        type: 'suffix'
       })
     }
 
+    // Post-suffix separately
     if (userComp.postSuffix || correctComp.postSuffix) {
       result.push({
         char: userComp.postSuffix || correctComp.postSuffix,
         correct: comparison.postSuffix,
-        type: 'component'
+        type: 'suffix'
       })
     }
 
