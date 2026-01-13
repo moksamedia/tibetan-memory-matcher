@@ -100,9 +100,9 @@ const isPlayingAudio = (key) => {
   return playingAudio.value.has(key)
 }
 
-// Toggle visibility of western numerals in speaking mode
-const toggleSpeakingReveal = (index) => {
-  speakingRevealed.value[index] = !speakingRevealed.value[index]
+// Reveal western numeral in speaking mode
+const revealSpeakingNumber = (index) => {
+  speakingRevealed.value[index] = true
 }
 
 // Listening mode state
@@ -257,15 +257,16 @@ const appendNumeral = (index, numeral) => {
         <div class="row" v-for="(num, i) in randomNumbers" :key="'ran-num-'+i">
           <div class="col-2">
             <q-btn
+              v-if="!speakingRevealed[i]"
               flat
               dense
-              :icon="speakingRevealed[i] ? 'visibility_off' : 'visibility'"
-              @click="toggleSpeakingReveal(i)"
+              @click="revealSpeakingNumber(i)"
               class="reveal-btn"
+              label="Show"
             >
-              <span v-if="speakingRevealed[i]">{{ formatNumber(num) }}</span>
-              <q-tooltip>{{ speakingRevealed[i] ? 'Hide' : 'Show' }} western numeral</q-tooltip>
+              <q-tooltip>Show western numeral</q-tooltip>
             </q-btn>
+            <span v-else>{{ formatNumber(num) }}</span>
           </div>
           <div class="col-2 tibetan">
             {{ toTibetanNumber(num) }}
@@ -505,7 +506,6 @@ div.numbers-input-col input {
 
 // Speaking mode reveal button
 .reveal-btn {
-  min-width: 100px;
   justify-content: flex-start;
 
   &:hover {
