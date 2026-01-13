@@ -273,7 +273,7 @@ const getCharacterComparison = (userAnswer, validAnswers) => {
               <q-input
                 v-model="listeningAnswers[i]"
                 outlined
-                label="Type your answer in Tibetan"
+                :label="listeningAnswers[i] ? '' : 'Type your answer in Tibetan'"
                 class="tibetan-input"
                 :disable="listeningRevealed[i]"
               />
