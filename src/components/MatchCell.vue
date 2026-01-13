@@ -1,5 +1,6 @@
 <template>
 <div
+  v-if="!smallScreenMode"
   class="col flex-center value-cell prevent-select"
   :class="{ front: front,
             selected: selected,
@@ -10,10 +11,38 @@
   >
   <div>{{value}}</div>
 </div>
+<div
+  v-else
+  class="col-grow flex-center value-cell prevent-select"
+  :class="{ front: front,
+            selected: selected,
+            notSelected: !selected,
+            matched: matched,
+            peeking: peeking}"
+  @click="handlePress"
+  >
+  <div style="height:40px;"></div>
+</div>
+<q-dialog
+v-if="smallScreenMode"
+v-model="showDialog"
+position="top"
+full-width="true"
+transition-duration="100"
+auto-close
+>
+      <q-card>
+        <q-card-section class="row items-center no-wrap">
+          <div>
+            {{value}}
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 </template>
 
 <script>
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { useMatcherGameStore } from 'src/stores/matcher-game-store'
 
 export default defineComponent({
@@ -24,18 +53,22 @@ export default defineComponent({
       type: Object,
       required: true
     },
-
     row: {
       type: Number,
       required: true
     },
-
     column: {
       type: Number,
+      required: true
+    },
+    smallScreenMode: {
+      type: Boolean,
       required: true
     }
   },
   setup(props) {
+
+    let showDialog = ref(false)
 
     const {noteObj} = props;
 
@@ -59,11 +92,18 @@ export default defineComponent({
         return;
       }
 
+      if (showDialog.value) showDialog.value = false
+
       if (store.isSelected(noteObj)) {
           store.unselect(noteObj)
       }
       else if (store.canSelect()) {
         store.setSelected(noteObj)
+        showDialog.value = true
+
+        if (noteObj.audio) {
+          noteObj.audio.play()
+        }
 
         if (store.hasMatch(noteObj)) {
           const match = store.getMatch(noteObj)
@@ -87,7 +127,8 @@ export default defineComponent({
       matched: isMatched,
       peeking: isPeeking,
       front: noteObj.side == "front",
-      value: noteObj.value
+      value: noteObj.value,
+      showDialog
     }
   }
 })
@@ -117,16 +158,32 @@ export default defineComponent({
   padding: 20px 10px;
   display: flex;
   align-items: center;
-  font-size: 1.3em;
+  font-size: 2.0em;
 }
 .front {
-  font-size: 3.2em;
-  font-family: 'monlam-chouk';
+  font-size: 4em;
+  font-family: 'himalaya';
 }
 .prevent-select {
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
+}
+
+@media screen and (max-width: 800px) {
+  .front {
+    font-size: 1.8em;
+    font-family: 'monlam-chouk';
+  }
+  .value-cell {
+    border: 1px black solid;
+    border-radius: 2px;
+    text-align: center;
+    padding: 10px 5px;
+    display: flex;
+    align-items: center;
+    font-size: 1.0em;
+  }
 }
 
 </style>

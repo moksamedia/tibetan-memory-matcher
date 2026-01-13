@@ -8,7 +8,8 @@ export const useMatcherGameStore = defineStore('matcherGame', {
     maxSelect: 2,
     matched: new Map(),
     reveals: 0,
-    peeking: false
+    peeking: false,
+    smallScreenMode: false
   }),
   getters: {
     numRows: (state) => state.rows,
@@ -58,6 +59,9 @@ export const useMatcherGameStore = defineStore('matcherGame', {
     },
     setPeekOff() {
       this.peeking = false;
+    },
+    setSmallScreenMode(newMode) {
+      this.smallScreenMode = newMode
     }
   },
 });

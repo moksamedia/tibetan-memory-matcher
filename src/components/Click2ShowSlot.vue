@@ -3,16 +3,6 @@
 import { ref } from 'vue';
 
 const {link} = defineProps({
-    value: {
-      type: String,
-      required: true
-    },
-    divClass: {
-      type: String
-    },
-    divStyle: {
-      type: String
-    },
     btnSize: {
       type: String,
       default: 'xs'
@@ -25,7 +15,6 @@ const {link} = defineProps({
       type: String,
       default: 'show'
     }
-
 })
 
 let show = ref(false)
@@ -41,5 +30,5 @@ let show = ref(false)
       @click="show=true"
       :size="btnSize"
     />
-    <div v-else :class="divClass" :style=divStyle v-html="value"></div>
+    <slot v-else></slot>
 </template>

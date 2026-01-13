@@ -1,6 +1,7 @@
 <script setup>
 import { defineComponent, toRaw, computed } from 'vue'
 import Click2Show from 'src/components/Click2Show.vue'
+import Click2ShowSlot from 'src/components/Click2ShowSlot.vue'
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
@@ -44,9 +45,11 @@ const randomNumbers = computed(() => {
         </div>
         <div class="col-2 tibetan">
           {{ toTibetanNumber(num) }}
-        </div>
+        </div>``
         <div class="col-grow" style="text-align: right;">
-          <Click2Show :value="num2Text.tibetanNumberToText(num)" divClass="tibetan"/>
+          <Click2ShowSlot>
+            <div class="tibetan">{{ num2Text.tibetanNumberToText(num) }}</div>
+          </Click2ShowSlot>
         </div>
       </div>
     </div>
