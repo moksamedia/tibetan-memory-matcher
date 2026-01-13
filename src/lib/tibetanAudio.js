@@ -81,6 +81,13 @@ class TibetanAudioService {
 
     // Create and play audio element
     const audio = new Audio(audioResult.url);
+
+    // Set preload to ensure full audio is buffered
+    audio.preload = 'auto';
+
+    // Ensure audio doesn't get cut off
+    audio.preservesPitch = true;
+
     await audio.play();
 
     return audio;

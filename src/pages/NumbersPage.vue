@@ -48,7 +48,10 @@ const playAudio = async (text, key) => {
     playingAudio.value.add(key)
 
     audio.onended = () => {
-      playingAudio.value.delete(key)
+      // Add delay to ensure audio fully completes before cleanup
+      setTimeout(() => {
+        playingAudio.value.delete(key)
+      }, 300)
     }
 
     audio.onerror = () => {
