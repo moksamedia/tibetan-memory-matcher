@@ -28,7 +28,7 @@ const loadPersistedValue = (key, defaultValue) => {
 
 let min = ref(loadPersistedValue('tibetan-numbers-min', 0))
 let max = ref(loadPersistedValue('tibetan-numbers-max', 1000))
-let num = ref(loadPersistedValue('tibetan-numbers-num', 10))
+const num = 10 // Fixed number of items
 
 // Watch for changes and persist to localStorage
 watch(min, (newValue) => {
@@ -37,10 +37,6 @@ watch(min, (newValue) => {
 
 watch(max, (newValue) => {
   localStorage.setItem('tibetan-numbers-max', newValue.toString())
-})
-
-watch(num, (newValue) => {
-  localStorage.setItem('tibetan-numbers-num', newValue.toString())
 })
 
 // Local saving toggle
@@ -57,8 +53,19 @@ watch(saveAudioLocally, (newValue) => {
 
 const num2Text = new Number2Text(false,false,false)
 
-const randomNumbers = computed(() => {
-  return getArrayOfRandomInts(min.value, max.value, num.value)
+const randomNumbers = ref([])
+
+// Generate random numbers
+const generateRandomNumbers = () => {
+  randomNumbers.value = getArrayOfRandomInts(min.value, max.value, num)
+}
+
+// Initialize random numbers
+generateRandomNumbers()
+
+// Regenerate when min or max changes
+watch([min, max], () => {
+  generateRandomNumbers()
 })
 
 const formatNumber = (num) => {
@@ -230,6 +237,20 @@ const appendNumeral = (index, numeral) => {
   listeningAnswers.value[index] += numeral
 }
 
+// Reset state and regenerate numbers
+const resetPage = () => {
+  // Reset speaking mode
+  speakingRevealed.value = {}
+
+  // Reset listening mode
+  listeningAnswers.value = {}
+  listeningRevealed.value = {}
+  listeningVersionIndex.value = {}
+
+  // Regenerate numbers
+  generateRandomNumbers()
+}
+
 // Numerals mode state
 const numeralsRange = ref('single') // 'single' (0-9) or 'double' (10-99)
 const numeralsChoices = ref(4) // Number of multiple choice options (2-10)
@@ -374,9 +395,6 @@ watch(mode, (newMode) => {
             :rules="[val => val <= MAX_SUPPORTED_NUMBER || `Max cannot exceed ${MAX_SUPPORTED_NUMBER.toLocaleString('en-US')}`]"
           />
         </div>
-        <div class="col-auto">
-          <q-input outlined v-model="num" label="Num" type="number" style="width: 100px" />
-        </div>
         <div class="col-auto flex items-center">
           <q-checkbox
             v-model="saveAudioLocally"
@@ -433,6 +451,17 @@ watch(mode, (newMode) => {
               </div>
             </Click2ShowSlot>
           </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="q-mt-lg text-center">
+          <q-btn
+            color="primary"
+            label="Generate New Numbers"
+            icon="refresh"
+            @click="resetPage"
+            size="md"
+          />
         </div>
       </div>
 
@@ -566,6 +595,17 @@ watch(mode, (newMode) => {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="q-mt-lg text-center">
+          <q-btn
+            color="primary"
+            label="Generate New Numbers"
+            icon="refresh"
+            @click="resetPage"
+            size="md"
+          />
         </div>
       </div>
 
