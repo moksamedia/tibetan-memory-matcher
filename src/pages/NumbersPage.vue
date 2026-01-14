@@ -230,6 +230,87 @@ const appendNumeral = (index, numeral) => {
   listeningAnswers.value[index] += numeral
 }
 
+// Numerals mode state
+const numeralsRange = ref('single') // 'single' (0-9) or 'double' (10-99)
+const numeralsChoices = ref(4) // Number of multiple choice options (2-10)
+const numeralsDirection = ref('western-to-tibetan') // Alternates between 'western-to-tibetan' and 'tibetan-to-western'
+const currentQuestion = ref(null)
+const selectedAnswer = ref(null)
+const showFeedback = ref(false)
+
+// Generate a new numerals question
+const generateNumeralsQuestion = () => {
+  // Reset state
+  selectedAnswer.value = null
+  showFeedback.value = false
+
+  // Determine range based on selection
+  const minNum = numeralsRange.value === 'single' ? 0 : 10
+  const maxNum = numeralsRange.value === 'single' ? 9 : 99
+
+  // Generate correct answer
+  const correctNumber = getRandomInt(minNum, maxNum)
+
+  // Generate distractors (wrong answers)
+  const distractors = []
+  while (distractors.length < numeralsChoices.value - 1) {
+    const distractor = getRandomInt(minNum, maxNum)
+    if (distractor !== correctNumber && !distractors.includes(distractor)) {
+      distractors.push(distractor)
+    }
+  }
+
+  // Combine and shuffle
+  const allChoices = [correctNumber, ...distractors]
+  const shuffled = allChoices.sort(() => Math.random() - 0.5)
+
+  currentQuestion.value = {
+    correctNumber,
+    choices: shuffled,
+    direction: numeralsDirection.value
+  }
+}
+
+// Handle answer selection
+const selectNumeralAnswer = (choice) => {
+  if (showFeedback.value) return // Already answered
+
+  selectedAnswer.value = choice
+  showFeedback.value = true
+
+  const isCorrect = choice === currentQuestion.value.correctNumber
+
+  if (isCorrect) {
+    // Alternate direction for next question
+    numeralsDirection.value = numeralsDirection.value === 'western-to-tibetan'
+      ? 'tibetan-to-western'
+      : 'western-to-tibetan'
+
+    // Auto-advance after a pause
+    setTimeout(() => {
+      generateNumeralsQuestion()
+    }, 1000)
+  }
+}
+
+// Get display value for a number based on direction
+const getDisplayValue = (number, isQuestion = false) => {
+  if (currentQuestion.value.direction === 'western-to-tibetan') {
+    // Show western in question, Tibetan in choices
+    return isQuestion ? number.toString() : toTibetanNumber(number)
+  } else {
+    // Show Tibetan in question, western in choices
+    return isQuestion ? toTibetanNumber(number) : number.toString()
+  }
+}
+
+// Initialize numerals mode when switching to it
+watch(mode, (newMode) => {
+  if (newMode === 'numerals') {
+    generateNumeralsQuestion()
+  }
+})
+
 </script>
 
 <template>
@@ -246,6 +327,7 @@ const appendNumeral = (index, numeral) => {
       >
         <q-tab name="speaking" label="Speaking" />
         <q-tab name="listening" label="Listening" />
+        <q-tab name="numerals" label="Numerals" />
       </q-tabs>
 
       <q-separator class="q-mb-md" />
@@ -472,6 +554,71 @@ const appendNumeral = (index, numeral) => {
           </div>
         </div>
       </div>
+
+      <!-- Numerals Mode -->
+      <div v-if="mode === 'numerals'" class="numerals-mode">
+        <!-- Settings -->
+        <div class="row q-gutter-md q-mb-lg">
+          <div class="col-12 col-sm-auto">
+            <q-select
+              outlined
+              v-model="numeralsRange"
+              :options="[
+                { label: 'Single digits (0-9)', value: 'single' },
+                { label: 'Double digits (10-99)', value: 'double' }
+              ]"
+              option-label="label"
+              option-value="value"
+              emit-value
+              map-options
+              label="Number Range"
+              @update:model-value="generateNumeralsQuestion"
+            />
+          </div>
+          <div class="col-12 col-sm-auto">
+            <q-select
+              outlined
+              v-model="numeralsChoices"
+              :options="[2, 3, 4, 5, 6, 7, 8, 9, 10]"
+              label="Number of Choices"
+              @update:model-value="generateNumeralsQuestion"
+            />
+          </div>
+        </div>
+
+        <!-- Question -->
+        <div v-if="currentQuestion" class="question-container">
+          <div class="question-prompt text-center q-mb-md">
+            <div class="text-h6 text-grey-8 q-mb-sm">
+              {{ currentQuestion.direction === 'western-to-tibetan' ? 'Select the Tibetan numeral:' : 'Select the western numeral:' }}
+            </div>
+            <div class="question-number">
+              {{ getDisplayValue(currentQuestion.correctNumber, true) }}
+            </div>
+          </div>
+
+          <!-- Answer Choices -->
+          <div class="choices-grid">
+            <q-btn
+              v-for="choice in currentQuestion.choices"
+              :key="choice"
+              :class="[
+                'choice-btn',
+                {
+                  'correct': showFeedback && choice === currentQuestion.correctNumber,
+                  'incorrect': showFeedback && choice === selectedAnswer && choice !== currentQuestion.correctNumber,
+                  'disabled': showFeedback
+                }
+              ]"
+              :disable="showFeedback"
+              size="lg"
+              @click="selectNumeralAnswer(choice)"
+            >
+              {{ getDisplayValue(choice, false) }}
+            </q-btn>
+          </div>
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
@@ -605,6 +752,74 @@ div.numbers-input-col input {
 
   &:hover {
     background-color: #f0f0f0;
+  }
+}
+
+// Numerals mode styling
+.numerals-mode {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.question-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.question-number {
+  font-size: 72px;
+  font-weight: bold;
+  color: #1976d2;
+  padding: 20px;
+
+  &.tibetan {
+    font-size: 72px;
+  }
+}
+
+.choices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.choice-btn {
+  height: 80px;
+  font-size: 32px;
+  font-weight: 500;
+  background-color: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  transition: all 0.2s;
+
+  &:hover:not(.disabled) {
+    background-color: #e3f2fd;
+    border-color: #1976d2;
+    transform: scale(1.05);
+  }
+
+  &.correct {
+    background-color: #c8e6c9;
+    border-color: #4caf50;
+    color: #2e7d32;
+  }
+
+  &.incorrect {
+    background-color: #ffcdd2;
+    border-color: #f44336;
+    color: #c62828;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
   }
 }
 </style>
