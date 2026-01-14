@@ -7,6 +7,12 @@ import * as timeUtils from 'src/lib/timeUtils'
 import moment from 'moment'
 import { tibetanAudio } from 'src/lib/tibetanAudio'
 import { compareTexts } from 'src/lib/tibetanSyllable'
+import {
+  toTibetanNumber,
+  fromTibetanNumber,
+  isTibetanNumeral,
+  isWesternNumeral
+} from 'src/lib/numberUtils'
 
 const num = 10 // Fixed number of dates
 
@@ -84,6 +90,40 @@ const isPlayingAudio = (key) => {
 const dateAnswers = ref({})
 const dateRevealed = ref({})
 
+// Helper to check if string is a date in YYYY-M-D format
+const isDateFormat = (str) => {
+  return /^\d{4}-\d{1,2}-\d{1,2}$/.test(str) || /^[༠-༩]{4}-[༠-༩]{1,2}-[༠-༩]{1,2}$/.test(str)
+}
+
+// Parse date string in YYYY-M-D format and compare with correct date
+const compareDateFormat = (userAnswer, correctDate) => {
+  // Check if it's western numerals
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(userAnswer)) {
+    const parts = userAnswer.split('-')
+    const userYear = parseInt(parts[0], 10)
+    const userMonth = parseInt(parts[1], 10)
+    const userDay = parseInt(parts[2], 10)
+
+    return userYear === correctDate.getFullYear() &&
+           userMonth === correctDate.getMonth() + 1 &&
+           userDay === correctDate.getDate()
+  }
+
+  // Check if it's Tibetan numerals
+  if (/^[༠-༩]{4}-[༠-༩]{1,2}-[༠-༩]{1,2}$/.test(userAnswer)) {
+    const parts = userAnswer.split('-')
+    const userYear = parseInt(fromTibetanNumber(parts[0]), 10)
+    const userMonth = parseInt(fromTibetanNumber(parts[1]), 10)
+    const userDay = parseInt(fromTibetanNumber(parts[2]), 10)
+
+    return userYear === correctDate.getFullYear() &&
+           userMonth === correctDate.getMonth() + 1 &&
+           userDay === correctDate.getDate()
+  }
+
+  return false
+}
+
 const checkAnswer = (index, dateInfo) => {
   const userAnswer = dateAnswers.value[index]?.trim()
   if (!userAnswer) {
@@ -96,12 +136,28 @@ const checkAnswer = (index, dateInfo) => {
   }
 
   const correctAnswer = dateInfo.tibetan
-  const isCorrect = userAnswer === correctAnswer
+  let isCorrect = false
+  let answerType = 'long-form'
+
+  // Check if answer is the full Tibetan text
+  if (userAnswer === correctAnswer) {
+    isCorrect = true
+  }
+  // Check if answer is a date format (western or Tibetan numerals)
+  else if (isDateFormat(userAnswer)) {
+    isCorrect = compareDateFormat(userAnswer, dateInfo.date)
+    if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(userAnswer)) {
+      answerType = 'western-numeral'
+    } else {
+      answerType = 'tibetan-numeral'
+    }
+  }
 
   dateRevealed.value[index] = {
     correct: isCorrect,
     userAnswer: userAnswer,
-    correctAnswer: correctAnswer
+    correctAnswer: correctAnswer,
+    answerType: answerType
   }
 }
 
@@ -178,7 +234,7 @@ const resetPage = () => {
               <q-input
                 v-model="dateAnswers[i]"
                 outlined
-                :label="dateAnswers[i] ? '' : 'Type your answer in Tibetan'"
+                :label="dateAnswers[i] ? '' : 'Type answer (Tibetan text or numerals YYYY-M-D)'"
                 class="tibetan-input"
                 :disable="!!dateRevealed[i]"
               />
@@ -219,13 +275,21 @@ const resetPage = () => {
               <span v-if="dateRevealed[i].correct === true" class="tibetan">
                 {{ dateRevealed[i].userAnswer }}
               </span>
-              <!-- Incorrect answer: show with highlighting -->
-              <span v-else-if="dateRevealed[i].correct === false" class="tibetan">
-                <span
-                  v-for="(charData, cIdx) in getCharacterComparison(dateRevealed[i].userAnswer, dateRevealed[i].correctAnswer)"
-                  :key="'char-'+i+'-'+cIdx"
-                  :class="charData.correct ? 'char-correct' : 'char-incorrect'"
-                >{{ charData.char }}</span>
+              <!-- Incorrect answer: show with highlighting only for long-form text -->
+              <span v-else-if="dateRevealed[i].correct === false">
+                <!-- If it's a numeral (western or Tibetan), just show it plain -->
+                <span v-if="dateRevealed[i].answerType !== 'long-form'" class="tibetan">
+                  {{ dateRevealed[i].userAnswer }}
+                  <span class="text-grey-7"> (date format - see long-form below)</span>
+                </span>
+                <!-- If it's long-form text, show character highlighting -->
+                <span v-else class="tibetan">
+                  <span
+                    v-for="(charData, cIdx) in getCharacterComparison(dateRevealed[i].userAnswer, dateRevealed[i].correctAnswer)"
+                    :key="'char-'+i+'-'+cIdx"
+                    :class="charData.correct ? 'char-correct' : 'char-incorrect'"
+                  >{{ charData.char }}</span>
+                </span>
               </span>
               <!-- Just showing answer (not submitted) -->
               <span v-else class="tibetan">
@@ -235,9 +299,12 @@ const resetPage = () => {
 
             <!-- Correct answer -->
             <div>
-              <strong>Correct answer:</strong>
+              <strong>Long-form answer:</strong>
               <div class="tibetan">
                 {{ dateRevealed[i].correctAnswer }}
+              </div>
+              <div class="q-mt-sm text-grey-7">
+                Also accepted: {{ dateInfo.iso }} or {{ dateInfo.tibetanNumerals }}
               </div>
             </div>
           </div>
