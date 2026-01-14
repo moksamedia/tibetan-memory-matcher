@@ -20,9 +20,28 @@ import { compareTexts } from 'src/lib/tibetanSyllable'
 // Mode selection
 const mode = ref('speaking')
 
-let min = ref(0)
-let max = ref(1000)
-let num = ref(10)
+// Load persisted values from localStorage or use defaults
+const loadPersistedValue = (key, defaultValue) => {
+  const stored = localStorage.getItem(key)
+  return stored !== null ? parseInt(stored, 10) : defaultValue
+}
+
+let min = ref(loadPersistedValue('tibetan-numbers-min', 0))
+let max = ref(loadPersistedValue('tibetan-numbers-max', 1000))
+let num = ref(loadPersistedValue('tibetan-numbers-num', 10))
+
+// Watch for changes and persist to localStorage
+watch(min, (newValue) => {
+  localStorage.setItem('tibetan-numbers-min', newValue.toString())
+})
+
+watch(max, (newValue) => {
+  localStorage.setItem('tibetan-numbers-max', newValue.toString())
+})
+
+watch(num, (newValue) => {
+  localStorage.setItem('tibetan-numbers-num', newValue.toString())
+})
 
 // Local saving toggle
 const saveAudioLocally = ref(false)
@@ -61,16 +80,14 @@ const playAudio = async (text, key) => {
   loadingAudio.value.add(key)
 
   try {
-    const audio = await tibetanAudio.playAudio("་"+text)
+    const audio = await tibetanAudio.playAudio(text)
 
     loadingAudio.value.delete(key)
     playingAudio.value.add(key)
 
     audio.onended = () => {
       // Add delay to ensure audio fully completes before cleanup
-      setTimeout(() => {
         playingAudio.value.delete(key)
-      }, 1000)
     }
 
     audio.onerror = () => {
