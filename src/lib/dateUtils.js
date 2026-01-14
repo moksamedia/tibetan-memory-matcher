@@ -41,9 +41,17 @@ function getFullDateAsText(date) {
   return getYearAsText(date) + getMonthAsText(date) + getDayAsText(date)
 }
 
+function getDateInTibetanNumerals(date) {
+  const year = numberUtils.toTibetanNumber(date.getFullYear())
+  const month = numberUtils.toTibetanNumber(date.getMonth() + 1).padStart(2, '༠')
+  const day = numberUtils.toTibetanNumber(date.getDate()).padStart(2, '༠')
+  return `${year}-${month}-${day}`
+}
+
 export {
   randomDateInRange,
   getYearAsText,
   getMonthAsText,
-  getFullDateAsText
+  getFullDateAsText,
+  getDateInTibetanNumerals
 }
