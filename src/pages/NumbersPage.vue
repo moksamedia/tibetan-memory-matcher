@@ -504,7 +504,7 @@ div.numbers-input-col input {
 }
 
 .order-tenthousands {
-  color: #95a5a6; // Cool gray
+  color: #6aaaaf; // Cool gray
 }
 
 .order-thousands {
@@ -512,7 +512,7 @@ div.numbers-input-col input {
 }
 
 .order-hundreds {
-  color: #f39c12; // Amber
+  color: #8c8eb5; // Amber
 }
 
 .order-tens-ones, .order-ones {
