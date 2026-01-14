@@ -11,6 +11,7 @@ import { compareTexts } from 'src/lib/tibetanSyllable'
 const num = 10 // Fixed number of dates
 
 const randomDates = ref([])
+const hideDateDisplay = ref(false) // Toggle to hide written dates for audio-only practice
 
 // Generate random dates
 const generateRandomDates = () => {
@@ -131,14 +132,22 @@ const resetPage = () => {
 <template>
   <q-page class="flex flex-center">
     <div class="q-pa-md full-width" style="max-width: 1200px;">
+      <!-- Controls -->
+      <div class="q-mb-md">
+        <q-checkbox
+          v-model="hideDateDisplay"
+          label="Hide written dates (audio only)"
+        />
+      </div>
+
       <div class="q-gutter-md">
         <div
           v-for="(dateInfo, i) in randomDates"
           :key="'date-'+i"
           class="date-item q-pa-md"
         >
-          <!-- Date display at top -->
-          <div class="row q-mb-md q-gutter-md">
+          <!-- Date display at top (hide if audio-only mode) -->
+          <div v-if="!hideDateDisplay" class="row q-mb-md q-gutter-md">
             <div class="col">
               <div class="text-caption text-grey-7">English Date</div>
               <div class="text-h6">{{ dateInfo.formatted }}</div>
