@@ -7,7 +7,7 @@ function randomDateInRange(start, end) {
 }
 
 function getYearAsText(date) {
-  const yearAsText = num2Text.tibetanNumberToText(date.getFullYear())
+  const yearAsText = num2Text.getAllVersions(date.getFullYear()).strings[0]
   const result = 'སྤྱི་ལོ་' + yearAsText + 'ལོར་'
   return result
 }
@@ -34,7 +34,7 @@ function getMonthAsText(date) {
 }
 
 function getDayAsText(date) {
-  return num2Text.tibetanNumberToText(date.getDate())
+  return num2Text.getAllVersions(date.getDate()).strings[0]
 }
 
 function getFullDateAsText(date) {
