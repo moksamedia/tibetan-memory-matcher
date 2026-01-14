@@ -235,14 +235,14 @@ const numeralsRange = ref('single') // 'single' (0-9) or 'double' (10-99)
 const numeralsChoices = ref(4) // Number of multiple choice options (2-10)
 const numeralsDirection = ref('western-to-tibetan') // Alternates between 'western-to-tibetan' and 'tibetan-to-western'
 const currentQuestion = ref(null)
-const selectedAnswer = ref(null)
-const showFeedback = ref(false)
+const wrongAnswers = ref([]) // Track wrong answers for current question
+const correctAnswerSelected = ref(false)
 
 // Generate a new numerals question
 const generateNumeralsQuestion = () => {
   // Reset state
-  selectedAnswer.value = null
-  showFeedback.value = false
+  wrongAnswers.value = []
+  correctAnswerSelected.value = false
 
   // Determine range based on selection
   const minNum = numeralsRange.value === 'single' ? 0 : 10
@@ -273,14 +273,14 @@ const generateNumeralsQuestion = () => {
 
 // Handle answer selection
 const selectNumeralAnswer = (choice) => {
-  if (showFeedback.value) return // Already answered
-
-  selectedAnswer.value = choice
-  showFeedback.value = true
+  if (correctAnswerSelected.value) return // Already got it right
+  if (wrongAnswers.value.includes(choice)) return // Already tried this wrong answer
 
   const isCorrect = choice === currentQuestion.value.correctNumber
 
   if (isCorrect) {
+    correctAnswerSelected.value = true
+
     // Alternate direction for next question
     numeralsDirection.value = numeralsDirection.value === 'western-to-tibetan'
       ? 'tibetan-to-western'
@@ -290,6 +290,9 @@ const selectNumeralAnswer = (choice) => {
     setTimeout(() => {
       generateNumeralsQuestion()
     }, 1000)
+  } else {
+    // Track wrong answer
+    wrongAnswers.value.push(choice)
   }
 }
 
@@ -605,12 +608,12 @@ watch(mode, (newMode) => {
               :class="[
                 'choice-btn',
                 {
-                  'correct': showFeedback && choice === currentQuestion.correctNumber,
-                  'incorrect': showFeedback && choice === selectedAnswer && choice !== currentQuestion.correctNumber,
-                  'disabled': showFeedback
+                  'correct': correctAnswerSelected && choice === currentQuestion.correctNumber,
+                  'incorrect': wrongAnswers.includes(choice),
+                  'disabled': correctAnswerSelected || wrongAnswers.includes(choice)
                 }
               ]"
-              :disable="showFeedback"
+              :disable="correctAnswerSelected || wrongAnswers.includes(choice)"
               size="lg"
               @click="selectNumeralAnswer(choice)"
             >
