@@ -332,8 +332,8 @@ watch(mode, (newMode) => {
 
       <q-separator class="q-mb-md" />
 
-      <!-- Controls (shared between modes) -->
-      <div class="row q-gutter-sm q-mb-md">
+      <!-- Controls (shared between Speaking and Listening modes) -->
+      <div v-if="mode !== 'numerals'" class="row q-gutter-sm q-mb-md">
         <div class="col-auto">
           <q-input
             outlined
