@@ -233,7 +233,7 @@ const appendNumeral = (index, numeral) => {
 // Numerals mode state
 const numeralsRange = ref('single') // 'single' (0-9) or 'double' (10-99)
 const numeralsChoices = ref(4) // Number of multiple choice options (2-10)
-const numeralsDirection = ref('western-to-tibetan') // Alternates between 'western-to-tibetan' and 'tibetan-to-western'
+const numeralsDirection = ref('western-to-tibetan') // Cycles: 'western-to-tibetan', 'tibetan-to-western', 'written-to-tibetan'
 const currentQuestion = ref(null)
 const wrongAnswers = ref([]) // Track wrong answers for current question
 const correctAnswerSelected = ref(false)
@@ -281,10 +281,14 @@ const selectNumeralAnswer = (choice) => {
   if (isCorrect) {
     correctAnswerSelected.value = true
 
-    // Alternate direction for next question
-    numeralsDirection.value = numeralsDirection.value === 'western-to-tibetan'
-      ? 'tibetan-to-western'
-      : 'western-to-tibetan'
+    // Cycle through three directions for next question
+    if (numeralsDirection.value === 'western-to-tibetan') {
+      numeralsDirection.value = 'tibetan-to-western'
+    } else if (numeralsDirection.value === 'tibetan-to-western') {
+      numeralsDirection.value = 'written-to-tibetan'
+    } else {
+      numeralsDirection.value = 'western-to-tibetan'
+    }
 
     // Auto-advance after a pause
     setTimeout(() => {
@@ -299,11 +303,18 @@ const selectNumeralAnswer = (choice) => {
 // Get display value for a number based on direction
 const getDisplayValue = (number, isQuestion = false) => {
   if (currentQuestion.value.direction === 'western-to-tibetan') {
-    // Show western in question, Tibetan in choices
+    // Show western in question, Tibetan numerals in choices
     return isQuestion ? number.toString() : toTibetanNumber(number)
-  } else {
-    // Show Tibetan in question, western in choices
+  } else if (currentQuestion.value.direction === 'tibetan-to-western') {
+    // Show Tibetan numerals in question, western in choices
     return isQuestion ? toTibetanNumber(number) : number.toString()
+  } else {
+    // written-to-tibetan: Show written form in question, Tibetan numerals in choices
+    if (isQuestion) {
+      return num2Text.getAllVersions(number).strings[0]
+    } else {
+      return toTibetanNumber(number)
+    }
   }
 }
 
@@ -593,9 +604,14 @@ watch(mode, (newMode) => {
         <div v-if="currentQuestion" class="question-container">
           <div class="question-prompt text-center q-mb-md">
             <div class="text-h6 text-grey-8 q-mb-sm">
-              {{ currentQuestion.direction === 'western-to-tibetan' ? 'Select the Tibetan numeral:' : 'Select the western numeral:' }}
+              <span v-if="currentQuestion.direction === 'western-to-tibetan'">Select the Tibetan numeral:</span>
+              <span v-else-if="currentQuestion.direction === 'tibetan-to-western'">Select the western numeral:</span>
+              <span v-else>Select the Tibetan numeral:</span>
             </div>
-            <div class="question-number">
+            <div
+              class="question-number"
+              :class="{ 'tibetan': currentQuestion.direction === 'written-to-tibetan' }"
+            >
               {{ getDisplayValue(currentQuestion.correctNumber, true) }}
             </div>
           </div>
